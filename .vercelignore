@@ -1,0 +1,13 @@
+.env
+.env.*
+.secrets/
+**/*service-account*.json
+.design-backup/
+.vscode/
+.git/
+node_modules/
+dist/
+mobile/
+tests/
+*.log
+.firebase/

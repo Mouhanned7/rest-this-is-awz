@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#b6192b">
+  <meta name="description" content="Daily Chicken Pizza à Auxerre. Pizzas, burgers, chicken et tacos halal. Ouvert 7j/7 de 11h à 1h. Livraison gratuite dès 18 €. 03 86 31 17 17.">
+  <title>Daily Chicken Pizza — Vos envies ont une adresse. Auxerre.</title>
+  <link rel="icon" href="images/daily/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/daily.css">
+  <script src="js/daily-menu.js" defer></script>
+  <script src="js/daily-pricing.js" defer></script>
+  <script src="js/daily.js" defer></script>
+  <script src="js/daily-location.js" defer></script>
+  <script src="js/daily-checkout.js" defer></script>
+  <script src="js/daily-pages.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#carte">Aller à la carte</a>
+  <div class="announcement"><span>Une envie ? On s’occupe du reste.</span><span><i data-icon="scooter"></i> Livraison offerte dès 18 € <b>·</b> Auxerre</span><a href="tel:+33386311717">03 86 31 17 17 <i data-icon="arrow-up"></i></a></div>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Daily Chicken Pizza, accueil"><span class="brand-symbol">d<span>✳</span></span><span class="brand-word">daily<span>CHICKEN & PIZZA</span></span></a>
+    <nav class="desktop-nav" aria-label="Navigation principale"><a href="#carte" class="nav-active">La carte</a><a href="#offres">Les bons plans <span class="nav-dot"></span></a><a href="about.html">À propos</a><a href="contact.html">Contact</a></nav>
+    <div class="header-actions"><span class="opening-pill"><span class="status-dot"></span><span id="opening-status">7j/7 · 11h – 1h</span></span><button class="cart-trigger" data-open-cart aria-label="Ouvrir mon panier"><i data-icon="bag"></i><span>Mon panier</span><b data-cart-count>0</b></button><button class="mobile-menu icon-button" id="mobile-menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-nav"><i data-icon="menu"></i></button></div>
+  </header>
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Navigation mobile" hidden><a href="#carte">La carte</a><a href="#offres">Les bons plans</a><a href="about.html">À propos</a><a href="contact.html">Contact</a><a href="tel:+33386311717">03 86 31 17 17</a></nav>
+  <div id="order-tracking-slot" class="order-tracking-slot page-width" hidden><span>Votre commande, en un clic.</span></div>
+  <main>
+    <section class="hero page-width" aria-labelledby="hero-title">
+      <img class="hero-photo" src="images/daily/optimized/hero-pizza-4e8242.webp" alt="Pizza dorée et généreuse, tomates fraîches et herbes aromatiques" fetchpriority="high" width="1800" height="1200">
+      <div class="hero-shade"></div><div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+      <div class="hero-content"><span class="eyebrow hero-eyebrow"><span></span> FAIT POUR VOS ENVIES · AUXERRE</span><h1 id="hero-title">Vos envies.<br>Notre <em>Daily.</em></h1><p>Pizza fondante. Chicken croustillant.<br>Le bonheur, tout simplement.</p><div class="hero-buttons"><a class="button button-cream" href="#carte">Choisir mon repas <i data-icon="arrow"></i></a><a class="hero-phone" href="tel:+33386311717"><i data-icon="phone"></i> Nous appeler</a></div><div class="hero-bottom"><span class="tiny-stars">✦ ✦ ✦</span><span>Sur place · À emporter · En livraison</span></div></div>
+      <div class="halal-seal"><span>GÉNÉREUSEMENT</span><strong>100%<br>HALAL</strong><span>TOUT SIMPLEMENT</span></div>
+      <a class="hero-glass" href="#offres"><span class="glass-icon"><i data-icon="pizza"></i></span><span><small>LE BON PLAN À EMPORTER</small><strong>La 2e pizza ? Offerte.*</strong><span>Pour 1 pizza achetée <i data-icon="arrow"></i></span></span></a>
+      <span class="hero-photo-note">Suggestion de présentation</span>
+    </section>
+    <div class="benefits page-width"><div><i data-icon="scooter"></i><span><strong>On vient à vous</strong><small>Livraison offerte dès 18 €</small></span></div><div><i data-icon="clock"></i><span><strong>Ouvert 7j/7</strong><small>7j/7, non-stop de 11h à 1h</small></span></div><div><i data-icon="heart"></i><span><strong>Du choix, du goût</strong><small>Une carte 100% halal</small></span></div><div><i data-icon="bag"></i><span><strong>Comme vous aimez</strong><small>Sur place, à emporter ou livré</small></span></div></div>
+    <section class="menu-section page-width" id="carte" aria-labelledby="menu-title">
+      <div class="section-heading"><div><span class="eyebrow"><span></span> LA CARTE DAILY</span><h2 id="menu-title">Faites-vous <em>plaisir.</em></h2></div><p>Choisissez. Composez. Régalez-vous.</p></div>
+      <div class="menu-toolbar"><div class="category-list" id="categories" role="group" aria-label="Catégories de la carte"></div><label class="search-box"><i data-icon="search"></i><input id="menu-search" type="search" placeholder="Une envie précise ?" aria-label="Rechercher un produit"></label></div>
+      <div class="menu-meta"><span id="menu-count" aria-live="polite"></span><span><i data-icon="info"></i> Menus burgers : frites + boisson 33 cl incluses</span></div>
+      <div class="product-grid" id="product-grid"></div>
+      <div class="menu-bottom"><button class="button button-outline" id="show-more">Explorer toute la carte <i data-icon="arrow"></i></button><p>Photos d’illustration · Prix issus de notre carte · Allergènes : renseignez-vous auprès de l’équipe.</p></div>
+    </section>
+    <section class="offers-section" id="offres" aria-labelledby="offers-title"><div class="page-width"><div class="section-heading"><div><span class="eyebrow"><span></span> ENCORE MEILLEUR À PLUSIEURS</span><h2 id="offers-title">Le goût des <em>bons plans.</em></h2></div><span class="offers-stamp">PLUS ON PARTAGE,<br>PLUS ON SE RÉGALE. <i data-icon="heart"></i></span></div><div class="offers-grid">
+      <article class="offer-card offer-red"><span class="offer-label"><i data-icon="bag"></i> À EMPORTER · 7J/7</span><h3>La deuxième ?<br><em>C’est cadeau.</em></h3><p>1 pizza achetée = la 2e offerte*</p><a href="menu.html?category=pizzas#carte">J’en profite <i data-icon="arrow"></i></a><span class="offer-number" aria-hidden="true">1+1</span></article>
+      <article class="offer-card offer-pink"><span class="offer-label"><i data-icon="scooter"></i> EN LIVRAISON · 7J/7</span><h3>À deux, c’est<br><em>encore mieux.</em></h3><p>1 pizza achetée = la 2e à −50 %*</p><a href="menu.html?category=pizzas#carte">On partage ? <i data-icon="arrow"></i></a><span class="offer-number" aria-hidden="true">−50<span>%</span></span></article>
+      <article class="offer-card offer-dark"><span class="offer-label"><i data-icon="scooter"></i> EN LIVRAISON · 7J/7</span><h3>Jamais deux<br><em>sans trois.</em></h3><p>2 pizzas achetées = la 3e offerte*</p><a href="menu.html?category=pizzas#carte">Invitez les gourmands <i data-icon="arrow"></i></a><span class="offer-number" aria-hidden="true">2+1</span></article>
+    </div><p class="offer-terms">* Pizzas Senior et Méga, sauf Marguerita. La pizza la moins chère est offerte ou à −50 %. Offres non cumulables, à signaler à la commande. Livraison : minimum 18 €.</p></div></section>
+    <section class="sharing-section page-width"><div class="sharing-photo"><img src="images/daily/optimized/double-burger-d75259.webp" alt="Deux burgers généreux à partager" loading="lazy" width="900" height="600"><span class="photo-chip"><i data-icon="heart"></i> À partager. Ou pas.</span></div><div class="sharing-copy"><span class="eyebrow"><span></span> LA TEAM GRANDE FAIM</span><h2>À partager.<br><em>Sans hésiter.</em></h2><p>Soirée pizza, pause burger ou bucket entre amis : on a prévu de quoi mettre tout le monde d’accord.</p><a class="button button-red" href="menu.html?category=menus#carte">Trouver notre menu <i data-icon="arrow"></i></a><div class="sharing-note"><strong>Menu Daily <span>20,00 €</span></strong><small>2 pizzas Junior au choix + 2 Coca-Cola 33 cl</small></div></div></section>
+
+    <section class="reviews-section page-width" id="avis" aria-labelledby="reviews-title">
+      <div class="section-heading"><div><span class="eyebrow"><span></span> AVIS CLIENTS</span><h2 id="reviews-title">Vous en parlez <em>le mieux.</em></h2></div><a class="button button-outline" href="https://www.google.com/maps/search/?api=1&amp;query=Daily+Chicken+40+rue+Bourneil+Auxerre" target="_blank" rel="noopener noreferrer">Tous les avis sur Google <i data-icon="arrow-up"></i></a></div>
+      <div class="reviews-grid">
+        <figure class="review-card glass-panel"><span class="quote-mark" aria-hidden="true">“</span><blockquote>Bonnes pizzas. Bon chicken curry.</blockquote><figcaption><span class="review-avatar">TD</span><span><strong>Thomas Dus</strong><a href="https://restaurantguru.com/Daily-Chicken-Auxerre" target="_blank" rel="noopener noreferrer">Avis Google, via Restaurant Guru <i data-icon="arrow-up"></i></a></span></figcaption></figure>
+        <figure class="review-card glass-panel"><span class="quote-mark" aria-hidden="true">“</span><blockquote>Le service est excellent et j’ai eu un très bon accueil.</blockquote><figcaption><span class="review-avatar">RB</span><span><strong>Rodayna B.</strong><a href="https://mon-resto-halal.com/en/restaurant/daily-chicken-auxerre" target="_blank" rel="noopener noreferrer">Extrait d’avis, via Mon Resto’ Halal <i data-icon="arrow-up"></i></a></span></figcaption></figure>
+        <figure class="review-card glass-panel"><span class="quote-mark" aria-hidden="true">“</span><blockquote>Très accueillant service rapide un endroit très propre je recommande vivement</blockquote><figcaption><span class="review-avatar">P</span><span><strong>Philippine</strong><a href="https://lacarte.menu/restaurants/auxerre/daily-chicken" target="_blank" rel="noopener noreferrer">Avis publié sur LaCarte <i data-icon="arrow-up"></i></a></span></figcaption></figure>
+      </div><p class="reviews-note">Sélection d’avis publics. Consultez chaque source et les avis récents sur Google.</p>
+    </section>
+    <section class="contact-section page-width" id="adresse" aria-labelledby="contact-title"><div class="contact-intro"><span class="eyebrow"><span></span> VOTRE PROCHAINE BONNE HABITUDE</span><h2 id="contact-title">On se retrouve<br><em>chez Daily.</em></h2><p>Une petite faim, une grande tablée ?<br>Passez nous voir ou appelez-nous.</p><a class="contact-phone" href="tel:+33386311717">03 86 31 17 17 <i data-icon="arrow-up"></i></a></div><div class="contact-details glass-panel"><div class="contact-row"><span class="contact-icon"><i data-icon="pin"></i></span><div><small>NOTRE ADRESSE</small><strong>40 rue Bourneil</strong><p>89000 Auxerre</p><a href="https://www.google.com/maps/search/?api=1&query=40+rue+Bourneil+89000+Auxerre" target="_blank" rel="noopener noreferrer">C’est par ici <i data-icon="arrow-up"></i></a></div></div><div class="contact-row"><span class="contact-icon"><i data-icon="clock"></i></span><div><small>TOUS LES JOURS, MÊME LE DIMANCHE</small><strong>11h00 — 01h00</strong><p>Ouvert 7j/7, service non-stop</p></div></div><div class="contact-row"><span class="contact-icon"><i data-icon="card"></i></span><div><small>POUR VOUS FACILITER LA VIE</small><p>Livraison à domicile et au bureau dès 18 €.<br>Carte bancaire en livraison dès 15 €, à signaler à la commande.<br>Titres-restaurant acceptés selon la carte.</p></div></div></div></section>
+
+    <div class="visit-social-grid page-width">
+    <section class="map-section" aria-label="Localisation Google Maps">
+      <div class="map-heading"><div><span class="eyebrow"><span></span> AUXERRE, TOUT SIMPLEMENT</span><h2>Juste <em>ici.</em></h2><p>40 rue Bourneil · 89000 Auxerre</p></div><a class="button button-red" href="https://www.google.com/maps/dir/?api=1&amp;destination=40+rue+Bourneil+89000+Auxerre" target="_blank" rel="noopener noreferrer">Mon itinéraire <i data-icon="pin"></i></a></div>
+      <div class="map-frame"><iframe title="Google Maps — Daily Chicken Pizza, 40 rue Bourneil, Auxerre" src="https://maps.google.com/maps?q=40%20Rue%20Bourneil%2089000%20Auxerre&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=&amp;output=embed" width="1200" height="380" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    </section>
+    <section class="social-section" aria-labelledby="social-title"><div><span class="eyebrow"><span></span> LE BON GOÛT SE PARTAGE</span><h2 id="social-title">Votre pause. <em>Votre story.</em></h2><p>Faites découvrir Daily à vos amis.</p></div><div class="social-actions"><button class="social-button instagram-button" id="share-instagram"><i data-icon="instagram"></i><span>Instagram<small>Partager votre moment</small></span><i data-icon="arrow-up"></i></button><a class="social-button facebook-button" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DDaily%2BChicken%2B40%2Brue%2BBourneil%2BAuxerre" target="_blank" rel="noopener noreferrer"><i data-icon="facebook"></i><span>Facebook<small>Partager l’adresse</small></span><i data-icon="arrow-up"></i></a></div></section>
+    </div>
+<section class="faq-section page-width" id="faq" aria-labelledby="faq-title">
+ <div class="faq-intro"><span class="eyebrow"><span></span> ON VOUS RÉPOND</span><h2 id="faq-title">Une question ?<br><em>C’est par ici.</em></h2><p>Les réponses, sans détour.</p><a class="button button-outline" href="contact.html">Parlons-en <i data-icon="arrow"></i></a></div>
+ <div class="faq-list">
+  <details><summary>Quels sont vos horaires ?</summary><p>Nous sommes ouverts tous les jours, de 11h à 1h, en continu. Si vous passez commande pendant la fermeture, un message vous avertit avant l’envoi. La préparation et le délai restent à confirmer par l’équipe.</p></details>
+  <details><summary>Comment fonctionne la livraison ?</summary><p>La livraison est offerte dès 18 € de commande. Indiquez votre adresse complète et, si vous le souhaitez, partagez votre position. Pour vérifier votre secteur, appelez le <a href="tel:+33386311717">03 86 31 17 17</a>.</p></details>
+  <details><summary>Quelles pizzas profitent des offres ?</summary><p>Les pizzas Senior et Méga, sauf Marguerita. À emporter : 1 pizza achetée, la 2e offerte. En livraison : la 2e à −50 %, ou 2 achetées et la 3e offerte. La remise porte sur la moins chère. Offres non cumulables, à signaler à la commande.</p></details>
+  <details><summary>La carte est-elle halal ? Et les allergènes ?</summary><p>Notre carte est halal. Pour les ingrédients, les allergènes ou une demande particulière, contactez l’équipe avant de commander.</p></details>
+  <details><summary>Comment savoir si mon paiement est passé ?</summary><p>Après votre retour du paiement, le site vérifie le résultat. Le message de réussite apparaît lorsque le paiement est confirmé. Le bouton « Suivre ma commande » permet de retrouver son état dans la même session. Le paiement et la confirmation de préparation sont deux étapes distinctes.</p></details>
+  <details><summary>Une modification ou une proposition à nous faire ?</summary><p>Pour une commande en cours, appelez-nous directement. Pour un partenariat, un événement ou une autre idée, utilisez notre <a href="contact.html">formulaire de contact</a>.</p></details>
+ </div>
+</section>
+  </main>
+  <footer class="site-footer page-width"><div><a class="brand" href="index.html"><span class="brand-symbol">d<span>✳</span></span><span class="brand-word">daily<span>CHICKEN & PIZZA</span></span></a><p>Vos envies ont une adresse.</p></div><div class="footer-links"><a href="#carte">La carte</a><a href="#offres">Les bons plans</a><a href="about.html">À propos</a><a href="contact.html">Contact</a><a href="about.html#faq">FAQ</a></div><div class="footer-end"><span>Fait pour les gourmands. À Auxerre.</span><button class="text-button" id="show-credits">Photos & informations</button><small>© <span id="year">2026</span> Daily Chicken Pizza</small></div></footer>
+  <dialog id="product-dialog" class="product-dialog" aria-labelledby="active-product-title"><button class="dialog-close icon-button" data-close-dialog aria-label="Fermer la fiche produit"><i data-icon="close"></i></button><div id="product-detail"></div></dialog>
+  <dialog id="cart-dialog" class="cart-dialog" aria-label="Votre panier"><div class="drawer-heading"><div><span class="eyebrow">LA BONNE IDÉE DU JOUR</span><h2>Votre <em>panier.</em></h2></div><button class="icon-button" data-close-dialog aria-label="Fermer le panier"><i data-icon="close"></i></button></div><div class="fulfilment-switch" role="group" aria-label="Mode de commande"><button data-mode="pickup" aria-pressed="true"><i data-icon="bag"></i> À emporter</button><button data-mode="delivery" aria-pressed="false"><i data-icon="scooter"></i> Livraison</button></div><div id="cart-items"></div><div id="cart-summary"></div></dialog>
+  <dialog id="info-dialog" class="info-dialog" aria-label="Informations Daily Chicken Pizza"><button class="dialog-close icon-button" data-close-dialog aria-label="Fermer"><i data-icon="close"></i></button><div id="info-content"></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="mobile-cart-bar" data-open-cart><i data-icon="bag"></i><span>Voir mon panier <b data-cart-count>0</b></span><strong id="mobile-cart-total">0,00 €</strong><i data-icon="arrow"></i></button>
+</body>
+</html>

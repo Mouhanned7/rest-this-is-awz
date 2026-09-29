@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Paiement Restaurant</title>
+</head>
+<body>
+  <h1>Effectuer un paiement</h1>
+
+  <input type="email" id="email" placeholder="Votre email" required>
+  <input type="number" id="amount" placeholder="Montant (USD)" required>
+  <button id="payBtn">Payer</button>
+
+  <script>
+    document.getElementById('payBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if(!email || !amount) {
+        alert('Merci de remplir email et montant.');
+        return;
+      }
+
+      try {
+        // ⚠️ Changer l'URL vers ton backend dans api/stripe
+        const response = await fetch('/api/stripe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, amount })
+        });
+
+        const data = await response.json();
+        alert('error $' + data.error + '.');
+
+
+        if(data.url) {
+          // Redirige automatiquement le client vers Stripe Checkout
+          window.location.href = data.url;
+        } else {
+          alert('Erreur: ' + data.error);
+        }
+      } catch(err) {
+        console.error(err);
+        alert('Erreur serveur. Voir console.');
+      }
+    });
+  </script>
+</body>
+</html>
