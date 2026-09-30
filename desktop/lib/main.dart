@@ -13,6 +13,7 @@ import 'history_screen.dart';
 import 'payment_email.dart';
 import 'design.dart';
 import 'desktop_printing.dart';
+import 'admin_access.dart';
 
 const cherry = danger;
 //ffd
@@ -190,36 +191,48 @@ class _AdminGateState extends State<AdminGate> {
       if (snapshot.connectionState != ConnectionState.done) {
         return const LoadingScreen();
       }
-      if (!snapshot.hasError && snapshot.data?.claims?['dailyAdmin'] == true) {
+      if (!snapshot.hasError &&
+          snapshot.hasData &&
+          hasDailyAdminAccess(
+            claims: snapshot.data!.claims,
+            token: snapshot.data!.token,
+            projectId: FirebaseConfig.projectId,
+            userId: widget.user.uid,
+          )) {
         return const OrdersScreen();
       }
       return Scaffold(
         appBar: AppBar(title: const Text('Accès responsable')),
-        body: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.lock_outline, size: 52, color: cherry),
-              const SizedBox(height: 24),
-              Text(
-                snapshot.hasError
-                    ? 'Impossible de vérifier votre accès. Vérifiez votre connexion.'
-                    : 'Ce compte n’a pas encore l’accès au restaurant.',
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 540),
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(Icons.lock_outline, size: 52, color: cherry),
+                  const SizedBox(height: 24),
+                  Text(
+                    snapshot.hasError
+                        ? 'Impossible de vérifier votre accès. Vérifiez votre connexion.'
+                        : 'Ce compte n’a pas encore l’accès au restaurant.',
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () => setState(() {
+                      role = widget.user.getIdTokenResult(true);
+                    }),
+                    child: const Text('Réessayer'),
+                  ),
+                  TextButton(
+                    onPressed: () => FirebaseAuth.instance.signOut(),
+                    child: const Text('Changer de compte'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () => setState(() {
-                  role = widget.user.getIdTokenResult(true);
-                }),
-                child: const Text('Réessayer'),
-              ),
-              TextButton(
-                onPressed: () => FirebaseAuth.instance.signOut(),
-                child: const Text('Changer de compte'),
-              ),
-            ],
+            ),
           ),
         ),
       );
