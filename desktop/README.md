@@ -5,7 +5,7 @@ Cette deuxième application Flutter est indépendante de `mobile/`. Elle reprend
 ## Utilisation
 
 - Se connecter avec le même compte responsable que dans l’application mobile (Firebase Authentication, droit `dailyAdmin`).
-- Les commandes de la collection Firestore `dailyOrders` se mettent à jour en direct. Un signal sonore annonce une nouvelle commande ou son passage au statut payé pendant que l’application reste ouverte.
+- Les commandes de la collection Firestore `dailyOrders` se mettent à jour en direct. Une alerte sonore répétée annonce les commandes en attente, une nouvelle commande ou son passage au statut payé. Le bouton haut-parleur de la barre du haut coupe l’alerte ; une nouvelle commande la réactive.
 - Une commande payée peut être confirmée. Une commande non payée peut être annulée. Le serveur vérifie à nouveau le paiement, envoie l’e-mail, puis retire la commande active.
 - Une copie JSON locale précède cette action. L’historique de ce PC reste consultable hors ligne après connexion. Il est distinct de celui du téléphone et n’est pas synchronisé entre appareils.
 - Chaque détail de commande et l’historique donnent accès au PDF et à la réimpression. Les tickets comprennent articles, options, montants, adresse, position GPS et remarque.

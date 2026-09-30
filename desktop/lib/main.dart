@@ -384,7 +384,8 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   int filter = 0, limit = 100;
   final Set<String> seenOrderStates = {};
-  bool firstSnapshot = true;
+  bool alarmActive = false;
+  Timer? alarmTimer;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? receiptSubscription;
   Timer? receiptTimer;
   List<DailyOrder> receiptOrders = [];
@@ -397,6 +398,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
     super.initState();
     connect();
     if (!widget.demo) {
+      alarmTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+        if (alarmActive) unawaited(DesktopPrinting.instance.alert());
+      });
       receiptTimer = Timer.periodic(
         const Duration(seconds: 30),
         (_) => sendReceipts(),
@@ -408,6 +412,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   void dispose() {
     receiptSubscription?.cancel();
     receiptTimer?.cancel();
+    alarmTimer?.cancel();
     super.dispose();
   }
 
@@ -452,11 +457,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
             .map((d) => DailyOrder(d.id, d.data()))
             .toList();
         final states = receiptOrders.map((o) => '${o.id}/${o.paid}').toSet();
-        if (!firstSnapshot && states.difference(seenOrderStates).isNotEmpty) {
+        if (states.difference(seenOrderStates).isNotEmpty) {
+          if (mounted) setState(() => alarmActive = true);
           unawaited(DesktopPrinting.instance.alert());
         }
+        if (states.isEmpty && mounted) setState(() => alarmActive = false);
         seenOrderStates.addAll(states);
-        firstSnapshot = false;
         sendReceipts();
       }, onError: (Object error) {});
     }
@@ -470,6 +476,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
         style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.7),
       ),
       actions: [
+        if (alarmActive)
+          IconButton(
+            tooltip: 'Couper l’alerte sonore',
+            icon: const Icon(Icons.volume_off_rounded),
+            onPressed: () => setState(() => alarmActive = false),
+          ),
         IconButton(
           tooltip: 'Tickets & impression',
           icon: const Icon(Icons.print_outlined),
