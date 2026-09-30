@@ -26,16 +26,15 @@ async function page({closed=false,accept=true,createdClosed=closed,geolocation}=
   await click('#begin-checkout');
   return {dialog,orders,el,click,get confirms(){return confirms;},get alerts(){return alerts;},async submit(){dialogEvents.submit({preventDefault(){},target:{...form,id:'checkout-form'}});await tick();}};
 }
-test('outside opening hours declining the alert creates no order; acceptance displays the warning',async()=>{
-  const decline=await page({closed:true,accept:false});assert.match(decline.dialog.innerHTML,/Restaurant fermé/);await decline.submit();assert.equal(decline.confirms,1);assert.equal(decline.orders.length,0);assert.equal(decline.el('[type="submit"]').disabled,false);
-  const accept=await page({closed:true});await accept.submit();assert.equal(accept.confirms,1);assert.equal(accept.orders.length,1);assert.match(accept.dialog.innerHTML,/Restaurant fermé/);
-  const boundary=await page({closed:false,createdClosed:true});await boundary.submit();assert.equal(boundary.alerts,1);
+test('closed restaurant shows a notification, retains the cart and makes no order request',async()=>{
+  const ui=await page({closed:true});assert.match(ui.dialog.innerHTML,/Restaurant fermé/);assert.match(ui.dialog.innerHTML,/panier est conservé/);
+  await ui.submit();assert.equal(ui.confirms,0);assert.equal(ui.orders.length,0);
 });
-test('GPS preserves a typed address and shows its Google Maps link',async()=>{
+test('GPS replaces the prior address on explicit detection, remains editable and shows its Maps link',async()=>{
   const ui=await page({geolocation:{getCurrentPosition(ok){ok({coords:{latitude:47.8,longitude:3.57,accuracy:10}});}}});
   ui.el('[name="address"]').value='Adresse saisie';await ui.click('#detect-position');
-  assert.equal(ui.el('[name="address"]').value,'Adresse saisie');assert.match(ui.el('#customer-map').href,/47.8,3.57/);assert.equal(ui.el('#customer-map').hidden,false);
-  assert.match(ui.el('#location-feedback').textContent,/conservée/);await ui.submit();assert.equal(ui.orders[0].customer.location.latitude,47.8);
+  assert.equal(ui.el('[name="address"]').value,'Adresse GPS proposée');ui.el('[name="address"]').value='Adresse corrigée';assert.match(ui.el('#customer-map').href,/47.8,3.57/);assert.equal(ui.el('#customer-map').hidden,false);
+  assert.match(ui.el('#location-feedback').textContent,/préremplie/);await ui.submit();assert.equal(ui.orders[0].customer.location.latitude,47.8);
 });
 test('GPS fills an empty address but a cleared pending location never comes back',async()=>{
   const ui=await page({geolocation:{getCurrentPosition(ok){ok({coords:{latitude:47.8,longitude:3.57,accuracy:10}});}}});await ui.click('#detect-position');assert.equal(ui.el('[name="address"]').value,'Adresse GPS proposée');

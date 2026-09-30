@@ -23,7 +23,7 @@ test('Vercel adapter preserves raw Stripe signatures and Firebase-only readiness
   const secret='whsec_vercel_unit_test';let webhookCalls=0;
   const env={VERCEL:'1',PUBLIC_BASE_URL:'https://daily.example',ONLINE_ORDERING_ENABLED:'true',FIREBASE_PROJECT_ID:'demo-local',FIRESTORE_EMULATOR_HOST:'127.0.0.1:8080',SMTP_EMAIL:'test@example.com',SMTP_APP_PASSWORD:'unit-password',STRIPE_SECRET_KEY:'sk_test_unit_only',STRIPE_WEBHOOK_SECRET:secret};
   const base=await serve(t,createServerlessApp({env,apiOptions:{service:{webhook:async event=>{assert.equal(event.id,'evt_raw_test');webhookCalls++;}}}}));
-  const config=await(await fetch(base+'/api/public-config')).json();assert.equal(config.orderingEnabled,true);assert.equal(config.paymentsEnabled,true);
+  const config=await(await fetch(base+'/api/public-config')).json();assert.equal(config.orderingEnabled,true);assert.equal(config.paymentsEnabled,false); // Public sites refuse test Checkout.
   const payload='{ "id": "evt_raw_test", "type": "checkout.session.completed", "data": {"object":{}} }';
   for(const [signature,status] of [['invalid',400],[Stripe.webhooks.generateTestHeaderString({payload,secret}),200]]){
     const response=await fetch(base+'/api/stripe/webhook',{method:'POST',headers:{'Content-Type':'application/json','stripe-signature':signature},body:payload});assert.equal(response.status,status);
@@ -47,4 +47,15 @@ test('Vercel public build contains referenced local assets but no secrets, legac
     assert.doesNotMatch(html,/preview-version/);
   }
   const config=JSON.parse(fs.readFileSync(path.join(output,'../vercel.json'),'utf8'));assert.equal(config.outputDirectory,'dist');assert.equal(config.functions['api/index.js'].maxDuration,60);assert.equal(config.crons,undefined);
+});
+
+
+test('live card payment remains disabled while Stripe reviews the account and is enabled when charges are allowed',async t=>{
+  for(const enabled of [false,true]){
+    let checks=0;
+    const env={PUBLIC_BASE_URL:'https://daily.example',ONLINE_ORDERING_ENABLED:'true',FIREBASE_PROJECT_ID:'demo-local',FIRESTORE_EMULATOR_HOST:'127.0.0.1:8080',SMTP_EMAIL:'test@example.com',SMTP_APP_PASSWORD:'unit-password',STRIPE_SECRET_KEY:'sk_live_unit_only',STRIPE_WEBHOOK_SECRET:'whsec_unit_only'};
+    const base=await serve(t,createServerlessApp({env,apiOptions:{stripeClient:{accounts:{retrieve:async()=>{checks++;return {charges_enabled:enabled};}}}}}));
+    for(let i=0;i<2;i++)assert.equal((await(await fetch(base+'/api/public-config')).json()).paymentsEnabled,enabled);
+    assert.equal(checks,1);
+  }
 });

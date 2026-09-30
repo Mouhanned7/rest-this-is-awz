@@ -51,3 +51,15 @@ flutter test
 ```
 
 Les tests utilisent des commandes fictives : aucun paiement, e-mail client ou ticket physique n’est émis.
+
+
+## Sauvegarde locale et nettoyage Firebase
+
+À la connexion, puis toutes les 30 secondes et après un traitement, l’application transfère les commandes clôturées vers son fichier JSON privé. Elle relit le fichier avant d’accuser réception de la version exacte au serveur. Le serveur supprime ensuite l’archive, le jeton de suivi et les traces associées de paiement/e-mail. Une panne de stockage ou de réseau conserve la copie distante jusqu’à une tentative réussie. Les commandes actives ne sont jamais purgées par ce transfert.
+
+Le premier appareil qui termine ce transfert garde l’historique : les copies locales des autres appareils ne sont pas synchronisées après suppression. Conserver une sauvegarde du répertoire de l’application avant de changer de poste ou de désinstaller. Les archives locales contiennent des données clients.
+
+Les applications affichent les montants et les promotions calculés par le serveur, identiques au montant envoyé à Stripe. Le ticket Windows utilise également le champ `pizzaDiscount`.
+
+
+Après confirmation serveur et sauvegarde locale, le retour à la liste n’attend plus le transfert des archives ni, sur Windows, la création/l’impression du ticket. Ces opérations continuent en arrière-plan ; un échec de nettoyage sera repris et un échec d’impression est signalé. Le jeton Firebase valide est réutilisé, avec renouvellement automatique par le SDK. Les horaires sont affichés « 11:00 AM – 1:00 PM » (11 h à 13 h, heure de Paris).

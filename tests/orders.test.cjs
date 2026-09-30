@@ -18,7 +18,7 @@ class TestStore extends ActionStore {
   snapshot(key){return {exists:this.docs.has(key),data:()=>this.docs.get(key)};}
   get db(){return this.fake;}
 }
-function setup(){const store=new TestStore();let calls=0;const sessions=new Map();const stripe={checkout:{sessions:{create:async(data,options)=>{calls++;const id='cs_test_'+options.idempotencyKey;const session=sessions.get(id)||{id,url:'https://checkout.stripe.com/c/pay/test',status:'open',payment_status:'unpaid',amount_total:data.line_items[0].price_data.unit_amount,currency:'eur',client_reference_id:data.client_reference_id,metadata:data.metadata};sessions.set(id,session);return session;},retrieve:async id=>sessions.get(id)}}};return {store,stripe,sessions,get calls(){return calls;},service:new OrderService({store,stripe,baseUrl:'https://daily.example'})};}
+function setup(){const store=new TestStore();let calls=0;const sessions=new Map();const stripe={checkout:{sessions:{create:async(data,options)=>{calls++;const id='cs_test_'+options.idempotencyKey;const session=sessions.get(id)||{id,url:'https://checkout.stripe.com/c/pay/test',status:'open',payment_status:'unpaid',amount_total:data.line_items[0].price_data.unit_amount,currency:'eur',client_reference_id:data.client_reference_id,metadata:data.metadata};sessions.set(id,session);return session;},retrieve:async id=>sessions.get(id)}}};return {store,stripe,sessions,get calls(){return calls;},service:new OrderService({store,stripe,baseUrl:'https://daily.example',now:()=>new Date('2026-09-30T10:00:00Z')})};}
 test('French numbers accept spaces and +33 but reject foreign, truncated and oversized inputs',()=>{
   for(const phone of ['0612345678','06 12 34 56 78','01.23.45.67.89','+33 6 12 34 56 78']){const input=body();input.customer.phone=phone;assert.doesNotThrow(()=>validateOrder(input));}
   for(const phone of ['+21612345678','+441234567890','061234567','06123456789','+330612345678','06123abcde','0000000000']){const input=body();input.customer.phone=phone;assert.throws(()=>validateOrder(input),/français/);}
@@ -130,4 +130,22 @@ test('owner endpoint rejects unauthenticated and non-admin accounts before any s
   const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>server.close(r)));const url=`http://127.0.0.1:${server.address().port}/api/admin/orders/${'a'.repeat(28)}/action`;
   for(const [token,status] of [['',401],['customer-test',403],['admin-test',200]]){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:'confirm'})});assert.equal(res.status,status);}
   assert.equal(actions,1);
+});
+
+
+test('server quote, stored order and Stripe charge share exactly the same promotion',async()=>{
+  for(const [mode,quantity,total,discount] of [['pickup',2,17.9,17.9],['delivery',2,26.85,8.95],['delivery',3,35.8,17.9]]){
+    const fixture=setup(),input=body({mode});input.items[0].quantity=quantity;input.customer.address='40 rue Bourneil, Auxerre';
+    const token='9'.repeat(64),summary=await fixture.service.create(input,token);await fixture.service.checkout(summary.id,token);
+    const order=(await fixture.store.get(summary.id)).order;
+    assert.equal(summary.totalPrice,total);assert.equal(order.pizzaDiscount,discount);assert.equal([...fixture.sessions.values()][0].amount_total,Math.round(total*100));
+  }
+});
+test('late Stripe events after local archival do not repopulate Firestore; status requires original token',async()=>{
+  const fixture=setup(),token='8'.repeat(64),order=await fixture.service.create(body(),token);
+  const checkout=await fixture.service.checkout(order.id,token),session=fixture.sessions.get(checkout.sessionId);
+  session.metadata.dailyLifecycle='confirmed';session.payment_status='paid';fixture.store.docs.clear();
+  await fixture.service.webhook({id:'evt_late',type:'checkout.session.completed',data:{object:session}});assert.equal(fixture.store.docs.size,0);
+  assert.equal((await fixture.service.status(order.id,token,session.id)).paymentStatus,'paid');
+  await assert.rejects(fixture.service.status(order.id,'7'.repeat(64),session.id),/introuvable/);
 });

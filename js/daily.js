@@ -151,8 +151,8 @@
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{const saved=JSON.parse(event.newValue||'{}');cart=Array.isArray(saved.items)?saved.items.filter(i=>byId.has(i.productId)&&Number.isFinite(i.price)&&i.price>0&&Number.isInteger(i.quantity)&&i.quantity>0&&i.quantity<=99):[];mode=saved.mode==='delivery'?'delivery':'pickup';renderCart();}catch{/* Keep the current usable cart. */}}});
   function updateOpeningBadge(){
   const hour=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).find(part=>part.type==='hour').value);
-  document.getElementById('opening-status').textContent=hour>=11||hour<1?'Ouvert · jusqu’à 1h':'De retour à 11h';
-  document.querySelector('.status-dot').classList.toggle('closed',hour>=1&&hour<11);
+  document.getElementById('opening-status').textContent=hour>=11&&hour<13?'Ouvert · jusqu’à 1:00 PM':'De retour à 11:00 AM';
+  document.querySelector('.status-dot').classList.toggle('closed',hour<11||hour>=13);
   }
   updateOpeningBadge();setInterval(updateOpeningBadge,60000);
   document.getElementById('year').textContent=new Date().getFullYear();

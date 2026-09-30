@@ -25,7 +25,8 @@ List<String> ticketLines(DailyOrder order) => [
   '------------------------------------------',
   if (order.data['subtotal'] is num)
     'Sous-total : ${euro(order.data['subtotal'])}',
-  if (order.data['discount'] is num) 'Remise : ${euro(order.data['discount'])}',
+  if ((order.data['pizzaDiscount'] as num? ?? 0) > 0)
+    '${order.data['promotion'] ?? 'Remise'} : -${euro(order.data['pizzaDiscount'])}',
   if (order.data['deliveryFee'] is num)
     'Livraison : ${euro(order.data['deliveryFee'])}',
   'TOTAL : ${euro(order.total)}',

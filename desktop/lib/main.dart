@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'firebase_config.dart';
 import 'order.dart';
 import 'order_archive.dart';
+import 'archive_sync.dart';
 import 'history_screen.dart';
 import 'payment_email.dart';
 import 'design.dart';
@@ -405,19 +406,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
   final Set<String> receiptsSent = {};
   bool sendingReceipts = false;
   String? receiptError;
+  String? archiveError;
   Stream<QuerySnapshot<Map<String, dynamic>>>? stream;
   @override
   void initState() {
     super.initState();
     connect();
     if (!widget.demo) {
+      syncArchives();
       alarmTimer = Timer.periodic(const Duration(seconds: 4), (_) {
         if (alarmActive) unawaited(DesktopPrinting.instance.alert());
       });
-      receiptTimer = Timer.periodic(
-        const Duration(seconds: 30),
-        (_) => sendReceipts(),
-      );
+      receiptTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        sendReceipts();
+        syncArchives();
+      });
     }
   }
 
@@ -427,6 +430,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
     receiptTimer?.cancel();
     alarmTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> syncArchives() async {
+    try {
+      await ArchiveSync.run();
+      if (mounted) setState(() => archiveError = null);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => archiveError =
+              'Sauvegarde / nettoyage en attente. La copie Firebase est conservée.',
+        );
+      }
+    }
   }
 
   Future<void> sendReceipts() async {
@@ -670,6 +687,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           ],
                         ),
                       ),
+                      if (archiveError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: StatusPill(
+                            label: archiveError!,
+                            icon: Icons.cloud_sync_outlined,
+                            error: true,
+                          ),
+                        ),
                       if (receiptError != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 16),
@@ -994,7 +1020,7 @@ class _OrderDetailState extends State<OrderDetail> {
     });
     try {
       final user = FirebaseAuth.instance.currentUser;
-      final token = await user?.getIdToken(true);
+      final token = await user?.getIdToken();
       if (token == null) {
         throw Exception('Reconnectez-vous au compte responsable.');
       }
@@ -1022,28 +1048,23 @@ class _OrderDetailState extends State<OrderDetail> {
         }
         return data['lifecycle'] as String;
       });
-      String? printWarning;
-      if (order.paid) {
-        try {
-          await DesktopPrinting.instance.afterConfirmation(order);
-        } catch (_) {
-          printWarning =
-              'Commande confirmée. Ticket non terminé : ouvrez l’historique pour réessayer.';
-        }
-      }
+      // The order and its local copy are committed. Do not make navigation
+      // wait for remote history cleanup or the Windows printer.
+      ScaffoldMessengerState? messenger;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
-              printWarning ??
-                  (order.paid
-                      ? 'Commande confirmée · e-mail transmis'
-                      : 'Commande annulée · e-mail transmis'),
+              order.paid
+                  ? 'Commande confirmée · e-mail transmis'
+                  : 'Commande annulée · e-mail transmis',
             ),
           ),
         );
         Navigator.pop(context);
       }
+      unawaited(finishInBackground(order, messenger));
     } catch (error) {
       if (mounted) {
         setState(
@@ -1055,6 +1076,36 @@ class _OrderDetailState extends State<OrderDetail> {
     } finally {
       if (mounted) setState(() => busy = false);
     }
+  }
+
+  Future<void> finishInBackground(
+    DailyOrder order,
+    ScaffoldMessengerState? messenger,
+  ) async {
+    final tasks = <Future<void>>[
+      ArchiveSync.run().catchError((Object _) {
+        /* The home screen retries every 30 seconds. */
+      }),
+    ];
+    if (order.paid) {
+      tasks.add(
+        DesktopPrinting.instance
+            .afterConfirmation(order)
+            .then<void>((_) {})
+            .catchError((Object _) {
+              if (messenger?.mounted == true) {
+                messenger!.showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Commande confirmée. Impression à réessayer depuis l’historique.',
+                    ),
+                  ),
+                );
+              }
+            }),
+      );
+    }
+    await Future.wait(tasks);
   }
 
   Future<void> ticket(DailyOrder order, {bool thermal = false}) async {
@@ -1212,7 +1263,8 @@ class _OrderDetailState extends State<OrderDetail> {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: StatusPill(
-                    label: 'Passée hors ouverture · service de 11 h à 1 h',
+                    label:
+                        'Passée hors ouverture · service de 11:00 AM à 1:00 PM',
                     icon: Icons.schedule,
                     warning: true,
                   ),

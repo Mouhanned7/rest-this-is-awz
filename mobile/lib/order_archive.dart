@@ -123,6 +123,40 @@ class OrderArchive {
       orders.add(entry);
     }
   });
+  Future<void> importCompleted(DailyOrder order) => _update((orders) {
+    final lifecycle = order.data['lifecycle'];
+    if (!['confirmed', 'cancelled'].contains(lifecycle)) {
+      throw const FormatException(
+        'Une commande active ne peut pas être purgée.',
+      );
+    }
+    final clean = Map<String, dynamic>.from(order.data)..remove('checkoutUrl');
+    final processed =
+        DateTime.tryParse('${clean['processedAt'] ?? ''}') ?? DateTime.now();
+    final entry = ArchivedOrder(
+      order: DailyOrder(order.id, asMap(_jsonValue(clean))),
+      action: lifecycle == 'confirmed' ? 'confirm' : 'cancel',
+      savedAt: processed,
+      completedAt: processed,
+    );
+    final index = orders.indexWhere((entry) => entry.order.id == order.id);
+    if (index < 0) {
+      orders.add(entry);
+    } else {
+      orders[index] = entry;
+    }
+  });
+  Future<bool> verifyCopy(DailyOrder order) async {
+    final clean = Map<String, dynamic>.from(order.data)..remove('checkoutUrl');
+    final expected = jsonEncode(_jsonValue(clean));
+    return (await load()).any(
+      (entry) =>
+          entry.order.id == order.id &&
+          entry.completed &&
+          jsonEncode(entry.order.data) == expected,
+    );
+  }
+
   Future<void> complete(String id, String lifecycle) => _update((orders) {
     if (!['confirmed', 'cancelled'].contains(lifecycle)) {
       throw ArgumentError('Statut serveur invalide');

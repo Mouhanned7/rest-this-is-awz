@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'firebase_config.dart';
 import 'order.dart';
 import 'order_archive.dart';
+import 'archive_sync.dart';
 import 'history_screen.dart';
 import 'payment_email.dart';
 import 'design.dart';
@@ -388,16 +389,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
   final Set<String> receiptsSent = {};
   bool sendingReceipts = false;
   String? receiptError;
+  String? archiveError;
   Stream<QuerySnapshot<Map<String, dynamic>>>? stream;
   @override
   void initState() {
     super.initState();
     connect();
     if (!widget.demo) {
-      receiptTimer = Timer.periodic(
-        const Duration(seconds: 30),
-        (_) => sendReceipts(),
-      );
+      syncArchives();
+      receiptTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        sendReceipts();
+        syncArchives();
+      });
     }
   }
 
@@ -406,6 +409,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
     receiptSubscription?.cancel();
     receiptTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> syncArchives() async {
+    try {
+      await ArchiveSync.run();
+      if (mounted) setState(() => archiveError = null);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => archiveError =
+              'Sauvegarde / nettoyage en attente. La copie Firebase est conservée.',
+        );
+      }
+    }
   }
 
   Future<void> sendReceipts() async {
@@ -628,6 +645,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           ],
                         ),
                       ),
+                      if (archiveError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: StatusPill(
+                            label: archiveError!,
+                            icon: Icons.cloud_sync_outlined,
+                            error: true,
+                          ),
+                        ),
                       if (receiptError != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 16),
@@ -952,7 +978,7 @@ class _OrderDetailState extends State<OrderDetail> {
     });
     try {
       final user = FirebaseAuth.instance.currentUser;
-      final token = await user?.getIdToken(true);
+      final token = await user?.getIdToken();
       if (token == null) {
         throw Exception('Reconnectez-vous au compte responsable.');
       }
@@ -980,8 +1006,12 @@ class _OrderDetailState extends State<OrderDetail> {
         }
         return data['lifecycle'] as String;
       });
+      // The order and its local copy are committed. Do not make navigation
+      // wait for remote history cleanup or the Windows printer.
+      ScaffoldMessengerState? messenger;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               order.paid
@@ -992,6 +1022,7 @@ class _OrderDetailState extends State<OrderDetail> {
         );
         Navigator.pop(context);
       }
+      unawaited(finishInBackground(order, messenger));
     } catch (error) {
       if (mounted) {
         setState(
@@ -1003,6 +1034,18 @@ class _OrderDetailState extends State<OrderDetail> {
     } finally {
       if (mounted) setState(() => busy = false);
     }
+  }
+
+  Future<void> finishInBackground(
+    DailyOrder order,
+    ScaffoldMessengerState? messenger,
+  ) async {
+    final tasks = <Future<void>>[
+      ArchiveSync.run().catchError((Object _) {
+        /* The home screen retries every 30 seconds. */
+      }),
+    ];
+    await Future.wait(tasks);
   }
 
   Stream<DocumentSnapshot<Map<String, dynamic>>>? stream;
@@ -1130,7 +1173,8 @@ class _OrderDetailState extends State<OrderDetail> {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: StatusPill(
-                    label: 'Passée hors ouverture · service de 11 h à 1 h',
+                    label:
+                        'Passée hors ouverture · service de 11:00 AM à 1:00 PM',
                     icon: Icons.schedule,
                     warning: true,
                   ),

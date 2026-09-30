@@ -6,22 +6,24 @@ const {detect}=require('../js/daily-location.js');
 const {OrderService}=require('../lib/order-service.cjs');
 const {catalog}=require('../lib/order-validation.cjs');
 
-test('Paris opening hours cover midnight, exact boundaries, winter and summer time',()=>{
+test('Paris opening hours are 11:00 inclusive to 13:00 exclusive, in winter and summer',()=>{
   for(const [iso,open] of [
-    ['2026-09-24T22:59:59Z',true],['2026-09-24T23:00:00Z',false],
     ['2026-09-25T08:59:59Z',false],['2026-09-25T09:00:00Z',true],
-    ['2026-01-24T23:59:59Z',true],['2026-01-25T00:00:00Z',false],
+    ['2026-09-25T10:59:59Z',true],['2026-09-25T11:00:00Z',false],
+    ['2026-09-25T22:30:00Z',false],['2026-09-25T23:00:00Z',false],
     ['2026-01-25T09:59:59Z',false],['2026-01-25T10:00:00Z',true],
-    ['2026-03-29T01:30:00Z',false],['2026-10-25T01:30:00Z',false],
+    ['2026-01-25T11:59:59Z',true],['2026-01-25T12:00:00Z',false],
+    ['2026-03-29T09:00:00Z',true],['2026-03-29T11:00:00Z',false],
+    ['2026-10-25T10:00:00Z',true],['2026-10-25T12:00:00Z',false],
   ])assert.equal(openingHours(new Date(iso)).open,open,iso);
 });
-test('after-hours flag comes from server clock and is retained when retrying after reopening',async()=>{
-  let saved,now=new Date('2026-09-25T00:00:00Z');
-  const service=new OrderService({store:{create:async(id,order,secret)=>saved??=( {order,secret} )},now:()=>now});
-  const pizza=[...catalog.values()].find(p=>p.name==='Regina'&&p.category==='pizzas');
-  const body={requestId:require('node:crypto').randomUUID(),mode:'pickup',paymentMethod:'on_collection',items:[{productId:pizza.id,quantity:1,choices:{size:'1',note:''}}],customer:{name:'Test',email:'client@example.com',phone:'0612345678'},outsideOpeningHours:false};
-  const first=await service.create(body,'a'.repeat(64));assert.equal(first.outsideOpeningHours,true);assert.match(first.openingWarning,/réouverture/);
-  now=new Date('2026-09-25T12:00:00Z');const retried=await service.create(body,'a'.repeat(64));assert.equal(retried.outsideOpeningHours,true);assert.equal(retried.createdAt,first.createdAt);
+test('closed restaurant rejects orders and existing checkout without calling Stripe',async()=>{
+  let writes=0,calls=0,now=new Date('2026-09-25T23:00:00Z');
+  const service=new OrderService({store:{create:async()=>writes++},stripe:{checkout:{sessions:{create:async()=>calls++,retrieve:async()=>calls++}}},now:()=>now});
+  await assert.rejects(service.create({},'a'.repeat(64)),/restaurant est fermé/);
+  service.authorized=async()=>({id:'a'.repeat(28),paymentStatus:'pending',paymentMethod:'online',stripeSessionId:'cs_existing'});
+  await assert.rejects(service.checkout('id','token'),/restaurant est fermé/);
+  assert.equal(writes,0);assert.equal(calls,0);
 });
 test('GPS failure retries with network location while denial does not retry',async()=>{
   const options=[];let retried=false;

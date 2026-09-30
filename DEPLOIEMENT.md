@@ -52,3 +52,14 @@ La signature de production est préparée dans `.secrets/daily-orders-release.jk
 La compilation release connectée est terminée et la signature APK a été vérifiée. Le site public existe ; l’API nécessite le redéploiement du correctif de dépendance Firebase et la configuration des variables serveur. Le webhook Stripe reste à créer.
 
 Sources : [Vercel CLI](https://vercel.com/docs/cli/deploy), [signature Android Flutter](https://docs.flutter.dev/deployment/android), [configuration Firebase Flutter](https://firebase.google.com/docs/flutter/setup).
+
+
+## Paiement réel et horaires
+
+Le domaine de production est `https://www.dailychickenpizza.fr` ; le webhook réel doit utiliser `/api/stripe/webhook` sur ce domaine. Les clés `sk_live_` et `whsec_` sont uniquement côté serveur dans Vercel. Les quatre événements Checkout sont `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`.
+
+Le site public refuse les sessions Stripe de test. Il vérifie aussi l’autorisation Stripe `charges_enabled` (cache de 60 secondes) : pendant la vérification du compte, le règlement au retrait/livreur reste proposé pendant les horaires d’ouverture. Après approbation Stripe, la carte redevient disponible automatiquement. Un changement de variables Vercel nécessite un redéploiement.
+
+Les nouvelles commandes et l’accès au paiement sont bloqués de 13 h à 11 h le lendemain, heure de Paris, y compris si le formulaire est resté ouvert. Le panier reste conservé. Une session Stripe déjà ouverte avant la fermeture reste soumise à sa propre expiration chez Stripe.
+
+`STRIPE_LEGACY_TEST_SECRET_KEY` permet uniquement de consulter/clôturer les anciennes sessions de test pendant leur migration vers l’historique local. Elle ne sert pas à créer les nouveaux paiements. Retirer cette variable après la fin de la migration de ces commandes.

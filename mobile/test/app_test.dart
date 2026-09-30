@@ -5,6 +5,33 @@ import 'package:daily_orders/order.dart';
 import 'package:daily_orders/design.dart';
 
 void main() {
+  testWidgets('order detail displays server promotion and discounted amount', (
+    tester,
+  ) async {
+    final order = DailyOrder('offer-test', {
+      'paymentStatus': 'pending',
+      'mode': 'delivery',
+      'subtotal': 35.8,
+      'pizzaDiscount': 8.95,
+      'promotion': 'Livraison : 2e pizza à −50 %',
+      'totalPrice': 26.85,
+      'deliveryFee': 0,
+      'customer': {'name': 'Test'},
+      'items': [],
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: dailyTheme(),
+        home: OrderDetail(order: order, demo: true),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Livraison : 2e pizza à −50 %'), findsOneWidget);
+    expect(find.text(euro(-8.95)), findsOneWidget);
+    expect(find.text(euro(26.85)), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   test('Only a confirmed payment produces the paid badge', () {
     expect(
       DailyOrder('1', {

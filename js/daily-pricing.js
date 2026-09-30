@@ -1,4 +1,4 @@
-/* The cart is an estimate only; the restaurant confirms promotions by phone. */
+/* Shared promotion rules: used by the cart and server-side order validation. */
 (function(root, factory) {
   const pricing = factory();
   if (typeof module === 'object' && module.exports) module.exports = pricing;

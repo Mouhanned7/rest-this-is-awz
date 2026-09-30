@@ -14,7 +14,8 @@ void main() {
         'mode': 'delivery',
         'totalPrice': 15,
         'subtotal': 20,
-        'discount': 5,
+        'pizzaDiscount': 5,
+        'promotion': 'Offre pizza',
         'customer': {
           'name': 'Élodie',
           'phone': '0612345678',
@@ -39,6 +40,7 @@ void main() {
       expect(text, contains('DEJA PAYE'));
       expect(text, contains('destination=47.8%2C3.5'));
       expect(text, contains('15,00'));
+      expect(text, contains('Offre pizza : -5,00'));
       expect(text, isNot(contains('SPERANZA')));
     },
   );

@@ -22,7 +22,7 @@ class PaymentEmails {
 
   static Future<void> _send(DailyOrder order, User user) async {
     const base = String.fromEnvironment('DAILY_API_BASE_URL');
-    final token = await user.getIdToken(true);
+    final token = await user.getIdToken();
     final response = await http
         .post(
           Uri.parse('$base/api/admin/orders/${order.id}/payment-email'),

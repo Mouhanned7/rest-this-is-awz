@@ -147,7 +147,7 @@ Pour une remise complète, le propriétaire doit aussi disposer des accès de ge
 
 - Filtres de l’application : texte vert sur blanc lorsqu’ils sont inactifs, blanc sur vert lorsqu’ils sont sélectionnés.
 - Position client : tentative GPS puis tentative réseau, message utile en cas de refus, conservation d’une adresse saisie et adresse proposée en France via l’IGN lorsque Google n’est pas disponible. Le GPS exige l’autorisation du navigateur et HTTPS. La saisie manuelle reste possible. [Service IGN](https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/).
-- Horaires : ouvert de 11 h inclus à 1 h exclu, chaque jour, fuseau Europe/Paris (été/hiver). Hors ouverture, le client voit un avertissement et choisit s’il transmet sa commande pour la réouverture. La commande reste autorisée après cet avertissement ; son statut de paiement dépend toujours de Stripe. Le serveur conserve le fait qu’elle a été passée hors ouverture.
+- Horaires : ouvert de 11 h inclus à 13 h exclu, chaque jour, fuseau Europe/Paris (été/hiver). Hors ouverture, commande et paiement sont bloqués ; le panier reste conservé.
 - Ces corrections du site et de l’API nécessitent un redéploiement Vercel ; le correctif des filtres nécessite l’installation de l’APK 1.1.1.
 
 ## Pages À propos et Contact
