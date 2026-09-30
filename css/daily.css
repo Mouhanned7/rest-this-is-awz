@@ -299,3 +299,7 @@ dialog{color:var(--ink);border:1px solid #fff;border-radius:26px;background:rgba
  .hero-motion.hero-media-ready .hero-glass{transform:translateY(0)}
  @keyframes daily-intro-in{from{transform:translateY(15px);opacity:.3}to{transform:translateY(0);opacity:1}}
 }
+
+/* Direct access to the Google Maps virtual tour on every page. */
+.desktop-nav .nav-tour{white-space:nowrap;color:var(--red);font-weight:750;border-bottom:1px solid #c4263c40}
+.mobile-nav .nav-tour{color:var(--red);font-weight:750;display:flex;align-items:center;justify-content:space-between}
