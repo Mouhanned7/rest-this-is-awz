@@ -69,7 +69,7 @@ npm run admin:setup
 4. Dans Stripe **Workbench → Webhooks**, créer une destination en **mode réel**, de type événements Snapshot, pour votre compte. Utiliser l’URL publique finale :
 
 ```text
-https://dailychicken.vercel.app/api/stripe/webhook
+https://www.dailychickenpizza.fr/api/stripe/webhook
 ```
 
 Si votre domaine est déjà prêt, remplacer le domaine ci-dessus par le vôtre. Le chemin reste `/api/stripe/webhook`. Sélectionner :
@@ -87,12 +87,12 @@ checkout.session.expired
 ```dotenv
 STRIPE_SECRET_KEY=sk_live_REMPLACER_PAR_LA_CLE_REELLE
 STRIPE_WEBHOOK_SECRET=whsec_REMPLACER_PAR_LE_SECRET_DU_WEBHOOK_LIVE
-PUBLIC_BASE_URL=https://dailychicken.vercel.app
+PUBLIC_BASE_URL=https://www.dailychickenpizza.fr
 ONLINE_ORDERING_ENABLED=true
 ```
 
 7. Redéployer avec `npx vercel@latest --prod`. Les clés test doivent rester dans l’environnement réservé aux essais, pas être mélangées aux clés live. Ne pas importer un ancien `.env.vercel.production` contenant des valeurs de test par-dessus cette configuration.
-8. Ouvrir `https://dailychicken.vercel.app/api/public-config` (ou votre nouveau domaine) et vérifier : `orderingEnabled: true`, `paymentsEnabled: true`, `testMode: false`. Ce contrôle vérifie les réglages reconnus par le code, pas la validité complète du compte ou du webhook.
+8. Ouvrir `https://www.dailychickenpizza.fr/api/public-config` (ou votre nouveau domaine) et vérifier : `orderingEnabled: true`, `paymentsEnabled: true`, `testMode: false`. Ce contrôle vérifie les réglages reconnus par le code, pas la validité complète du compte ou du webhook.
 9. Lors de la première **vraie commande**, vérifier le paiement dans Stripe live, la livraison du webhook avec réponse 200, le statut Payée dans l’application et les e-mails au client. Le montant est réellement débité en live. Les numéros de carte de test comme 4242 ne servent qu’en sandbox. Une carte virtuelle bancaire reste une vraie carte.
 10. Après traitement des derniers événements de test, désactiver l’ancienne destination de test si elle vise la même URL désormais configurée avec le secret live. Conserver un environnement d’essai distinct pour poursuivre les tests.
 

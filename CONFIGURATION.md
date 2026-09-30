@@ -2,7 +2,9 @@
 
 Le site et son API se déploient dans **un seul projet Vercel**. Aucun serveur séparé ni VPS n’est nécessaire. **Firebase est l’unique base de données** et gère la connexion du responsable ainsi que le temps réel. Stripe traite les paiements. Votre adresse e-mail et son mot de passe d’application permettent l’envoi des confirmations et annulations par SMTP.
 
-Les accès Stripe test, Firebase, SMTP et responsable ont été vérifiés. Le site https://dailychicken.vercel.app existe ; l’API nécessite le redéploiement du correctif local de compatibilité CommonJS. Le webhook du domaine final reste à créer. Voir **VERCEL-STRIPE.md** pour les étapes actuelles et le fichier privé d’import des variables.
+Le domaine de production est https://www.dailychickenpizza.fr. Le nouveau compte SMTP a été vérifié et ses variables ont été mises à jour dans Vercel, puis redéployées. Au contrôle du 30 septembre 2026, l’API fonctionne mais annonce encore `testMode: true` pour Stripe. Pour accepter des paiements réels, fournir une clé serveur live et le secret du webhook live correspondant. L’activation du compte Stripe seule ne remplace pas les clés test de Vercel. Le fichier privé `.env.vercel.production` conserve des valeurs locales : ne pas l’importer intégralement pour écraser une production déjà configurée.
+
+L’application Windows indépendante est dans `desktop/` ; ses commandes de lancement sont dans `desktop/README.md`. L’application Android reste dans `mobile/`.
 
 ## 1. Déployer sur Vercel
 

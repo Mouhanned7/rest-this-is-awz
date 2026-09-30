@@ -27,7 +27,7 @@ Configurer le webhook Stripe sur `https://VOTRE-DOMAINE/api/stripe/webhook`, ren
 2. **Clé serveur configurée localement** : `FIREBASE_CLIENT_EMAIL` et `FIREBASE_PRIVATE_KEY` sont renseignés dans `.env`. Il reste à les importer dans les variables Vercel. Ne jamais les mettre dans Flutter.
 3. **Firestore sécurisé** : règles privées publiées ; lecture anonyme refusée (403). Authentication est actif.
 4. **Compte responsable créé** avec les identifiants de `key.txt` et le rôle `dailyAdmin`. Connexion Firebase vérifiée.
-5. **URL configurée** : `PUBLIC_BASE_URL=https://dailychicken.vercel.app` pour le site et l’APK.
+5. **URL configurée** : `PUBLIC_BASE_URL=https://www.dailychickenpizza.fr` pour le site et l’APK.
 
 ## Compiler un APK connecté et signé
 

@@ -1,4 +1,4 @@
-# Mise en service de dailychicken.vercel.app
+# Mise en service de www.dailychickenpizza.fr
 
 ## État vérifié
 
@@ -22,7 +22,7 @@ Le fichier d’import contient seulement :
 
 | Variable | Contenu |
 |---|---|
-| `PUBLIC_BASE_URL` | `https://dailychicken.vercel.app` |
+| `PUBLIC_BASE_URL` | `https://www.dailychickenpizza.fr` |
 | `ONLINE_ORDERING_ENABLED` | `false` pendant la préparation |
 | `STRIPE_SECRET_KEY` | Clé de test corrigée |
 | `FIREBASE_PROJECT_ID` | `mouhafr` |
@@ -55,7 +55,7 @@ checkout.session.expired
 6. Continuer → **Webhook endpoint**, puis saisir exactement :
 
 ```text
-https://dailychicken.vercel.app/api/stripe/webhook
+https://www.dailychickenpizza.fr/api/stripe/webhook
 ```
 
 7. Donner le nom « Daily Chicken — test » et créer la destination.
@@ -73,7 +73,7 @@ npx vercel@latest --prod
 Le dossier est déjà lié au projet `dailychicken`. Attendre **Ready**, puis ouvrir :
 
 ```text
-https://dailychicken.vercel.app/api/public-config
+https://www.dailychickenpizza.fr/api/public-config
 ```
 
 La réponse doit être du JSON, sans erreur 500. Avec les commandes désactivées, `orderingEnabled` et `paymentsEnabled` restent `false` ; `testMode` doit être `true`.
