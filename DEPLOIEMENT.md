@@ -63,3 +63,24 @@ Le site public refuse les sessions Stripe de test. Il vérifie aussi l’autoris
 Les nouvelles commandes et l’accès au paiement sont bloqués de 13 h à 11 h le lendemain, heure de Paris, y compris si le formulaire est resté ouvert. Le panier reste conservé. Une session Stripe déjà ouverte avant la fermeture reste soumise à sa propre expiration chez Stripe.
 
 `STRIPE_LEGACY_TEST_SECRET_KEY` permet uniquement de consulter/clôturer les anciennes sessions de test pendant leur migration vers l’historique local. Elle ne sert pas à créer les nouveaux paiements. Retirer cette variable après la fin de la migration de ces commandes.
+
+
+## Interrupteur Firestore : commandes hors horaires
+
+Dans Firebase → Firestore Database → collection `dailySettings` → document `ordering`, modifier le champ **booléen** `allowOutsideHours` :
+
+- `true` (ON) : les commandes sont autorisées à toute heure, y compris en dehors de 11:00 AM–1:00 PM.
+- `false` (OFF, valeur initiale) : les horaires normaux de Paris s’appliquent.
+
+Le réglage est relu côté serveur à chaque création de commande et à chaque ouverture du paiement. Aucun redéploiement n’est nécessaire. Le bandeau du site se met à jour au prochain rafraîchissement ou dans la minute. Si le champ manque, n’est pas un booléen ou ne peut pas être lu, les horaires normaux s’appliquent. Les clients du site ne peuvent pas modifier ce réglage ; les règles Firestore restent fermées, la modification se fait dans la console Firebase avec les droits du propriétaire du projet.
+
+Ce réglage ne désactive pas les autres validations (minimum de livraison, disponibilité du service, autorisation des encaissements Stripe). Le document de configuration reste dans Firestore lorsque les collections de commandes sont vidées.
+
+
+## Adresse GPS internationale et carte indisponible
+
+La recherche d’adresse utilise Google Geocoding si une clé serveur est configurée, puis IGN en France métropolitaine. Photon/OpenStreetMap sert de secours mondial, notamment en Tunisie. L’adresse textuelle est copiée dans le champ de livraison et reste modifiable ; un numéro absent doit être complété. Une saisie effectuée pendant la recherche n’est pas remplacée. Attribution OpenStreetMap affichée pour les résultats Photon. Les résultats proches sont mis en cache uniquement en mémoire, au plus 200 entrées pendant 10 minutes.
+
+Le serveur public Photon accepte un usage raisonnable sans garantie de disponibilité : https://github.com/komoot/photon#demo-server. Pour un volume plus important, configurer `PHOTON_REVERSE_URL` vers une instance dédiée ou `GOOGLE_MAPS_SERVER_API_KEY`.
+
+Si Stripe n’autorise pas encore les encaissements, le formulaire explique pourquoi la carte ne peut pas être sélectionnée et propose le règlement au retrait/livreur. Le bouton « Vérifier la disponibilité de la carte » rafraîchit ce statut sans effacer les coordonnées du client. L’activation reste conditionnée à l’approbation de Stripe, avec un cache serveur maximal de 60 secondes.

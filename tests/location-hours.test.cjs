@@ -41,9 +41,20 @@ test('French reverse geocoding works without Google key and falls back when Goog
   const first=await reverseAddress(47.8,3.57,{env:{},fetcher});assert.equal(first.address,'Rue de test, Auxerre');assert.equal(urls[0].hostname,'data.geopf.fr');
   urls.length=0;const fallback=await reverseAddress(47.8,3.57,{env:{GOOGLE_MAPS_SERVER_API_KEY:'unit-only'},fetcher});assert.equal(fallback.address,first.address);assert.equal(urls.length,2);
 });
-test('reverse geocoding never invents an address abroad or when the service fails',async()=>{
+test('reverse geocoding returns no invented address on service failure or distant results',async()=>{
   let calls=0;const fetcher=async()=>{calls++;throw new Error('offline');};
-  assert.equal((await reverseAddress(36.8,10.2,{env:{},fetcher})).address,null);assert.equal(calls,0);
+  assert.equal((await reverseAddress(36.8,10.2,{env:{},fetcher})).address,null);assert.equal(calls,1);
   assert.equal((await reverseAddress(47.8,3.57,{env:{},fetcher})).address,null);
   const distant=await reverseAddress(47.8,3.57,{env:{},fetcher:async()=>({ok:true,json:async()=>({features:[{properties:{label:'Wrong town'},geometry:{coordinates:[2.35,48.85]}}]})})});assert.equal(distant.address,null);
+});
+
+test('worldwide reverse lookup returns editable street text outside France, without a Google key',async()=>{
+  const urls=[];
+  const result=await reverseAddress(36.8,10.2,{env:{},fetcher:async url=>{urls.push(url);return {ok:true,json:async()=>({features:[{geometry:{coordinates:[10.2,36.8]},properties:{street:'Rue Exemple',district:'Quartier Test',postcode:'1000',state:'Tunis',country:'Tunisie'}}]})};}});
+  assert.equal(urls.length,1);assert.equal(urls[0].hostname,'photon.komoot.io');
+  assert.equal(result.address,'Rue Exemple, 1000 Quartier Test, Tunis, Tunisie');assert.equal(result.partial,true);
+});
+test('worldwide fallback replaces unavailable IGN, with the house number when present',async()=>{
+  const result=await reverseAddress(47.8,3.57,{env:{},fetcher:async url=>url.hostname==='data.geopf.fr'?{ok:false}:{ok:true,json:async()=>({features:[{geometry:{coordinates:[3.57,47.8]},properties:{housenumber:'40',street:'Rue Exemple',city:'Auxerre',postcode:'89000',country:'France'}}]})}});
+  assert.equal(result.address,'40 Rue Exemple, 89000 Auxerre, France');assert.equal(result.partial,false);
 });
