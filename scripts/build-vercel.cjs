@@ -14,11 +14,15 @@ function build(output=path.join(root,'dist')) {
   for(const file of jsFiles)fs.copyFileSync(path.join(root,'js',file),path.join(output,'js',file));
   fs.mkdirSync(path.join(output,'css'));
   fs.copyFileSync(path.join(root,'css/daily.css'),path.join(output,'css/daily.css'));
-  for(const directory of ['images','fonts'])fs.cpSync(path.join(root,directory),path.join(output,directory),{recursive:true,filter:source=>{
+  for(const directory of ['images','fonts']){
+    // Fonts are optional: the current site no longer ships the old icon font.
+    if(directory==='fonts'&&!fs.existsSync(path.join(root,directory)))continue;
+    fs.cpSync(path.join(root,directory),path.join(output,directory),{recursive:true,filter:source=>{
     const stat=fs.lstatSync(source);
     if(stat.isSymbolicLink())throw new Error('Un asset ne doit pas être un lien symbolique.');
     return stat.isDirectory()||/\.(avif|webp|png|jpe?g|gif|svg|ico|woff2?|ttf|otf|eot)$/i.test(source);
-  }});
+    }});
+  }
   return output;
 }
 module.exports={build};

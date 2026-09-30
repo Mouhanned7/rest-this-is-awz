@@ -63,3 +63,202 @@ js/custom.js
 js/jquery-3.4.1.min.js
 js/main.js
 images/daily/*contact*.jpg
+
+# Local documentation (all Markdown files, at any depth).
+*.[mM][dD]
+*.[mM][aA][rR][kK][dD][oO][wW][nN]
+
+# Additional credentials, access notes and signing material.
+[aA][cC][cC][eE][sS]*.[tT][xX][tT]
+[aA][cC][cC][eE][sS][sS]*.[tT][xX][tT]
+[kK][eE][yY]*.[tT][xX][tT]
+[kK][eE][yY][sS].[jJ][sS][oO][nN]
+[kK][eE][yY].[jJ][sS][oO][nN]
+*api-key*.json
+*api_key*.json
+secret*.json
+secret*.txt
+token*.json
+token*.txt
+password*.txt
+password*.json
+.ssh/
+.aws/
+.azure/
+.gnupg/
+id_rsa*
+id_ed25519*
+*.p8
+*.der
+*.crt
+*.cer
+
+# Private data exports and local diagnostics.
+*.sql
+*.dump
+orders*.csv
+customers*.csv
+playwright-report/
+test-results/
+*.dmp
+
+# Unused original images and legacy fonts; keep local copies only.
+/fonts/fontawesome-webfont.ttf
+/fonts/fontawesome-webfont.woff
+/fonts/fontawesome-webfont.woff2
+/images/1.jpg
+/images/10.jpg
+/images/11.jpg
+/images/111.jpg
+/images/12.jpg
+/images/13.jpg
+/images/14.jpg
+/images/15.jpg
+/images/16.jpg
+/images/17.jpg
+/images/18.jpg
+/images/2.jpg
+/images/222.jpg
+/images/3 jmbon pizza.jpg
+/images/3.jpg
+/images/333.jpg
+/images/4.jpg
+/images/444.jpg
+/images/5.jpg
+/images/555.jpg
+/images/6.jpg
+/images/666.png
+/images/7.jpg
+/images/777.jpg
+/images/8.jpg
+/images/888.jpg
+/images/9.jpg
+/images/AL TARTUFFO VIANDE Pizza.jpg
+/images/Burger TENDERS.jpg
+/images/NORVÉGIENNE Pizza.jpg
+/images/Sandwich Américain.jpg
+/images/Sandwich Chicken Tikka.jpg
+/images/Sandwich Fricadelle.jpg
+/images/Sandwich Kebab.jpg
+/images/Sandwich Mexicanos.jpg
+/images/Sandwich Mixte.jpg
+/images/Sandwich Radical.jpg
+/images/about-img.png
+/images/b.jpg
+/images/b1.jpg
+/images/b10.jpg
+/images/b2.jpg
+/images/b3.jpg
+/images/b4.jpg
+/images/b5.jpg
+/images/b6.jpg
+/images/b7.jpg
+/images/b8.jpg
+/images/b9.jpg
+/images/bigy burguer.jpg
+/images/boucher.jpg
+/images/calamar.jpg
+/images/campion pizza.jpg
+/images/caramello pizza.jpg
+/images/chicken wings menu.jpg
+/images/chicken wings.jpg
+/images/chiken pizza.jpg
+/images/chti burguer.jpg
+/images/chti pizza.jpg
+/images/client1.jpg
+/images/client2.jpg
+/images/coca.webp
+/images/d1.jpg
+/images/d2.jpg
+/images/d3.jpg
+/images/d4.jpg
+/images/d5.jpg
+/images/daily/burger.jpg
+/images/daily/chicken.jpg
+/images/daily/dessert.jpg
+/images/daily/donuts.jpg
+/images/daily/double-burger.jpg
+/images/daily/fries.jpg
+/images/daily/hero-pizza.jpg
+/images/daily/icecream.jpg
+/images/daily/muffin.jpg
+/images/daily/pizza.jpg
+/images/daily/salad.jpg
+/images/daily/tenders.jpg
+/images/eaux.jpg
+/images/f1.jpg
+/images/f1.png
+/images/f2.jpg
+/images/f2.png
+/images/f3.jpg
+/images/f3.png
+/images/f4.png
+/images/f5.png
+/images/f6.png
+/images/f7.png
+/images/f77.jpg
+/images/f78.jpg
+/images/f79.jpg
+/images/f8.png
+/images/f80.jpg
+/images/f9.png
+/images/favicon.png
+/images/hawai pizza.jpg
+/images/hero-bg.jpg
+/images/imaagee.png
+/images/jalapenos.jpg
+/images/kebazza pizza.jpg
+/images/me1.jpg
+/images/me2.jpg
+/images/me3.jpg
+/images/menu duo.png
+/images/menu junior.png
+/images/menu mega.png
+/images/menu_bouchees_camembert.png
+/images/menu_calamar.png
+/images/menu_jalapenos.png
+/images/mexicaine pizza.jpg
+/images/milano pizza.jpg
+/images/n1.jpg
+/images/n2.png
+/images/n3.jpg
+/images/n4.png
+/images/n5.jpg
+/images/n6.png
+/images/n7.jpg
+/images/n8.png
+/images/n9.jpg
+/images/o1.jpg
+/images/o2.jpg
+/images/offre 2 pizza.png
+/images/offre 3 pizza.png
+/images/offre_pizza+canette.png
+/images/p1.jpg
+/images/p2.jpg
+/images/p3.jpg
+/images/p4.jpg
+/images/p5.jpg
+/images/pa1.jpg
+/images/pa2.jpg
+/images/pa3.jpg
+/images/pa4.webp
+/images/panini 4 fromage.jpg
+/images/panini jombon.jpg
+/images/panini saumon.jpg
+/images/pizza napolitaine.jpg
+/images/pizza neptune.webp
+/images/pizza_fermiere.png
+/images/raclette burguer.jpg
+/images/s1.jpg
+/images/s2.jpg
+/images/s3.jpg
+/images/speranza pizza.jpg
+/images/spicy burguer.jpg
+/images/steak.png
+/images/t1.jpeg
+/images/t2.jpg
+/images/t3.png
+/images/taco bowl.jfif
+/images/taco bowl1.jpg
+/images/taco bowl3.jfif
+/images/texas pizza.jpg
