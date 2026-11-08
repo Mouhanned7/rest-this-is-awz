@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dailychickenpizza.fr/sitemap.xml
+Sitemap: https://www.dailychickenpizza.fr/sitemap.xml
