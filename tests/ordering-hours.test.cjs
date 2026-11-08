@@ -6,7 +6,7 @@ const {createOrderingHours}=require('../lib/ordering-hours.cjs');
 const {OrderService}=require('../lib/order-service.cjs');
 const {createApi}=require('../lib/api.cjs');
 const {catalog}=require('../lib/order-validation.cjs');
-const night=new Date('2026-09-30T20:00:00Z');
+const night=new Date('2026-09-30T02:00:00Z');
 test('only boolean true overrides hours; absent settings and read failures use regular hours',async()=>{
   for(const value of [false,undefined,null,'true',1]){
     const getOpening=createOrderingHours({readSettings:async()=>({allowOutsideHours:value})});

@@ -1264,7 +1264,7 @@ class _OrderDetailState extends State<OrderDetail> {
                   padding: EdgeInsets.only(bottom: 20),
                   child: StatusPill(
                     label:
-                        'Passée hors ouverture · service de 11:00 AM à 1:00 PM',
+                        'Passée hors ouverture · service de 11h à 1h du matin',
                     icon: Icons.schedule,
                     warning: true,
                   ),

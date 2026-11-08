@@ -15,7 +15,7 @@
   const heading=(label,title)=>`<div class="drawer-heading"><div><span class="eyebrow">${label}</span><h2>${title}</h2></div><button class="icon-button" type="button" data-checkout-close aria-label="Fermer">✕</button></div>`;
   function showClosed(message){
     clearTimeout(pollTimer);if(!dialog.open)dialog.showModal();
-    dialog.innerHTML=heading('À TRÈS VITE','De retour à <em>11:00 AM.</em>')+`<p class="cart-alert" role="alert">${escape(message)}</p><p>Votre panier est conservé. Revenez pendant les horaires d’ouverture pour commander.</p><button type="button" class="button button-red cart-summary-button" data-checkout-close>J’ai compris</button>`;
+    dialog.innerHTML=heading('À TRÈS VITE','De retour à <em>11h.</em>')+`<p class="cart-alert" role="alert">${escape(message)}</p><p>Votre panier est conservé. Revenez pendant les horaires d’ouverture pour commander.</p><button type="button" class="button button-red cart-summary-button" data-checkout-close>J’ai compris</button>`;
   }
   async function openCheckout(){
     snapshot=window.DailyCart.snapshot();if(!snapshot.items.length)return;
@@ -85,7 +85,7 @@
   async function submitOrder(form){
     if(submitting)return;submitting=true;const button=form.querySelector('[type="submit"]'),error=form.querySelector('#checkout-error');button.disabled=true;error.textContent='';
     try{
-      // Refresh the server clock: the form may have stayed open past 13:00.
+      // Refresh the server clock: the form may have stayed open past 01:00.
       const currentConfig=await api('/public-config');
       if(currentConfig.opening?.open===false){showClosed(currentConfig.opening.message);return;}
       const data=Object.fromEntries(new FormData(form));

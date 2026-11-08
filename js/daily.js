@@ -151,12 +151,12 @@
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{const saved=JSON.parse(event.newValue||'{}');cart=Array.isArray(saved.items)?saved.items.filter(i=>byId.has(i.productId)&&Number.isFinite(i.price)&&i.price>0&&Number.isInteger(i.quantity)&&i.quantity>0&&i.quantity<=99):[];mode=saved.mode==='delivery'?'delivery':'pickup';renderCart();}catch{/* Keep the current usable cart. */}}});
   async function updateOpeningBadge(){
   const hour=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).find(part=>part.type==='hour').value);
-  let open=hour>=11&&hour<13,override=false;
+  let open=hour>=11||hour<1,override=false;
   try{
     const response=await fetch('/api/public-config',{cache:'no-store',signal:AbortSignal.timeout(15000)});
     if(response.ok){const config=await response.json();if(typeof config.opening?.open==='boolean'){open=config.opening.open;override=config.opening.allowOutsideHours===true;}}
   }catch{/* Keep the scheduled hours when offline. */}
-  document.getElementById('opening-status').textContent=override?'Commandes ouvertes':open?'Ouvert · jusqu’à 1:00 PM':'De retour à 11:00 AM';
+  document.getElementById('opening-status').textContent=override?'Commandes ouvertes':open?'Ouvert · jusqu’à 1h du matin':'De retour à 11h';
   document.querySelector('.status-dot').classList.toggle('closed',!open);
   }
   updateOpeningBadge();setInterval(updateOpeningBadge,60000);

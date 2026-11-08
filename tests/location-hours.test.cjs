@@ -6,15 +6,17 @@ const {detect}=require('../js/daily-location.js');
 const {OrderService}=require('../lib/order-service.cjs');
 const {catalog}=require('../lib/order-validation.cjs');
 
-test('Paris opening hours are 11:00 inclusive to 13:00 exclusive, in winter and summer',()=>{
+test('Paris opening hours run from 11:00 inclusive to 01:00 the next night exclusive, in winter and summer',()=>{
   for(const [iso,open] of [
     ['2026-09-25T08:59:59Z',false],['2026-09-25T09:00:00Z',true],
-    ['2026-09-25T10:59:59Z',true],['2026-09-25T11:00:00Z',false],
-    ['2026-09-25T22:30:00Z',false],['2026-09-25T23:00:00Z',false],
+    ['2026-09-25T11:00:00Z',true],['2026-09-25T21:59:59Z',true],
+    ['2026-09-25T22:30:00Z',true],['2026-09-25T22:59:59Z',true],
+    ['2026-09-25T23:00:00Z',false],['2026-09-26T03:00:00Z',false],
     ['2026-01-25T09:59:59Z',false],['2026-01-25T10:00:00Z',true],
-    ['2026-01-25T11:59:59Z',true],['2026-01-25T12:00:00Z',false],
-    ['2026-03-29T09:00:00Z',true],['2026-03-29T11:00:00Z',false],
-    ['2026-10-25T10:00:00Z',true],['2026-10-25T12:00:00Z',false],
+    ['2026-01-25T23:30:00Z',true],['2026-01-25T23:59:59Z',true],
+    ['2026-01-26T00:00:00Z',false],
+    ['2026-03-29T09:00:00Z',true],['2026-03-29T08:59:59Z',false],
+    ['2026-10-25T10:00:00Z',true],['2026-10-25T09:59:59Z',false],
   ])assert.equal(openingHours(new Date(iso)).open,open,iso);
 });
 test('closed restaurant rejects orders and existing checkout without calling Stripe',async()=>{
