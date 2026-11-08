@@ -15,6 +15,11 @@ setInterval(async()=>{
 for (const directory of ['css', 'js', 'images', 'fonts']) {
   app.use('/' + directory, express.static(path.join(__dirname, directory)));
 }
+app.get(['/robots.txt', '/sitemap.xml'], (req, res) => {
+  const file = path.join(__dirname, req.path);
+  if (fs.existsSync(file)) res.sendFile(file);
+  else res.status(404).end();
+});
 app.use('/responsable',express.static(path.join(__dirname,'mobile/build/web')));
 const version = () => ['index.html','menu.html','about.html','contact.html','js/daily-pages.js','js/daily.js','js/daily-checkout.js','js/daily-menu.js','js/daily-pricing.js','css/daily.css'].map(file => {try{return fs.statSync(path.join(__dirname,file)).mtimeMs;}catch{return 0;}}).join('-');
 app.get('/preview-version', (req,res) => res.json({version:version()}));
