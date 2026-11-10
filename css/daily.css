@@ -303,3 +303,5 @@ dialog{color:var(--ink);border:1px solid #fff;border-radius:26px;background:rgba
 /* Direct access to the Google Maps virtual tour on every page. */
 .desktop-nav .nav-tour{white-space:nowrap;color:var(--red);font-weight:750;border-bottom:1px solid #c4263c40}
 .mobile-nav .nav-tour{color:var(--red);font-weight:750;display:flex;align-items:center;justify-content:space-between}
+
+figcaption small{font-size:11px;color:var(--muted);line-height:1.6}
