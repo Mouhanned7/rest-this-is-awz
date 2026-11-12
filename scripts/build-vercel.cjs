@@ -8,7 +8,7 @@ function build(output=path.join(root,'dist')) {
   if(fs.existsSync(output)&&fs.lstatSync(output).isSymbolicLink())throw new Error('Le dossier de sortie ne doit pas être un lien.');
   fs.rmSync(output,{recursive:true,force:true});
   fs.mkdirSync(output,{recursive:true});
-  for(const file of ['index.html','menu.html','html.html','about.html','contact.html','avis.html','robots.txt','sitemap.xml']){
+  for(const file of ['index.html','menu.html','html.html','about.html','contact.html','avis.html','404.html','googlea89808893afae0f7.html','robots.txt','sitemap.xml']){
     if(fs.existsSync(path.join(root,file)))fs.copyFileSync(path.join(root,file),path.join(output,file));
   }
   const jsFiles=['daily.js','daily-pages.js','daily-location.js','daily-checkout.js','daily-menu.js','daily-pricing.js'];
