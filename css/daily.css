@@ -309,3 +309,19 @@ figcaption small{font-size:11px;color:var(--muted);line-height:1.6}
 /* Photo des buckets (portrait) : cadrage centré sur les frites, la boisson et le seau. */
 .product-image-button img[src*="bucket-daily-chicken"]{object-position:50% 56%}
 .detail-photo[src*="bucket-daily-chicken"]{object-position:50% 42%}
+
+/* Catégories : toutes visibles sur plusieurs lignes, sans défilement horizontal (ordinateur, tablette et mobile). */
+.menu-toolbar{align-items:flex-start}
+.category-list{flex-wrap:wrap;overflow:visible;scroll-snap-type:none;gap:8px;padding:4px 0 8px;min-width:0}
+.category-button{flex-shrink:1;white-space:nowrap;scroll-snap-align:none}
+@media(max-width:850px){
+  .menu-toolbar{display:block}
+  .category-list{gap:7px;padding:2px 0 6px}
+  .category-button{min-height:40px;padding:8px 13px;font-size:13px;gap:7px;border-radius:14px;background:#f3ece6}
+  .category-button[aria-pressed=true]{background:var(--red)}
+  .category-button svg.icon{width:16px;height:16px}
+}
+@media(max-width:380px){
+  .category-list{gap:6px}
+  .category-button{min-height:38px;padding:7px 10px;font-size:12.5px;gap:6px}
+}
