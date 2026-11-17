@@ -135,11 +135,11 @@
   const sweets={'Brownie':'images/daily/optimized/d3-5fbecb.webp','Tarte':'images/daily/optimized/d2-926f14.webp','Donuts':'images/daily/optimized/donuts-a5a386.webp','Muffin':'images/daily/optimized/muffin-63fd16.webp','Tiramisu':'images/daily/optimized/d1-06d15e.webp'};
   Object.entries(sweets).forEach(([n,image])=>add('desserts',n,3.5,'La petite touche sucrée pour finir. Parfums selon disponibilité.',image));
   ['Häagen-Dazs','Ben & Jerry’s'].forEach(n=>add('desserts',n,4,'Glace en pot. Demandez les parfums disponibles.',n==='Häagen-Dazs'?'images/daily/optimized/d4-5b9590.webp':'images/daily/optimized/icecream-617a0e.webp',{sizes:[{name:'100 ml',price:4},{name:'500 ml',price:8}]}));
-  const drinks=[['Coca-Cola','restaurant-cola',0],['Coca-Cola Light','light',0],['Fanta','restaurant-fanta',-90],['Eau minérale','restaurant-eau',0]];
+  const drinks=[['Coca-Cola','coca-cola-hd',0],['Coca-Cola Light','light',0],['Fanta','fanta-orange-hd',0],['Eau minérale','eau-cristaline-hd',0]];
   drinks.forEach(([n,image,imageRotation])=>add('boissons',n,n==='Eau minérale'?1.5:2,n==='Eau minérale'?'Eau plate · 50 cl.':'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
   // Minute Maid retiré de la carte : on garde son emplacement pour que les identifiants suivants ne bougent pas.
   products.push({id:`daily-${products.length+1}`,removed:true});
-  [['Maxi Coca-Cola',3.5,'1,5 L','restaurant-cola-large'],['Maxi Fanta',3.5,'1,5 L','restaurant-fanta-large'],['Maxi Oasis',4,'Tropical · 2 L','restaurant-oasis-large']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/drinks/${image}.jpg`));
+  [['Maxi Coca-Cola',3.5,'1,5 L','maxi-coca-hd'],['Maxi Fanta',3.5,'1,5 L','maxi-fanta-hd'],['Maxi Oasis',4,'Tropical · 2 L','restaurant-oasis-large']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/drinks/${image}.jpg`));
   // Menu enfant : trois produits au lieu d'un seul avec choix du type. Les deux derniers sont ajoutés
   // en fin de liste pour ne décaler aucun identifiant de produit existant (paniers en cours).
   [
@@ -148,20 +148,23 @@
   ].forEach(([n,p,d,i])=>add('menus',n,p,d,i,{choice:'kid',meal:true}));
   // Nouvelles boissons ajoutées en fin de liste : les identifiants existants doivent rester les mêmes.
   [
-    ['Lipton Ice Tea Pêche','lipton-peche',-90],
-    ['Fanta Citron','fanta-citron',-90],
-    ['DADA Fraise','dada-fraise',0],
-    ['Orangina','orangina',-90],
-    ['DADA Melon','dada-melon',-90],
-    ['Coca-Cola Cherry','cola-cherry',-90],
-    ['Coca-Cola Zéro','cola-zero',90],
-    ['Oasis Tropical','oasis-tropical',0],
-    ['Schweppes Agrumes','schweppes-agrumes',-90],
+    ['Lipton Ice Tea Pêche','lipton-peche-hd',0],
+    ['Fanta Citron','fanta-citron-hd',0],
+    ['DADA Fraise','dada-fraise-hd',0],
+    ['Orangina','orangina-hd',0],
+    ['DADA Melon','dada-melon-hd',0],
+    ['Coca-Cola Cherry','cola-cherry-hd',0],
+    ['Coca-Cola Zéro','cola-zero-hd',0],
+    ['Oasis Tropical','oasis-tropical-hd',0],
+    ['Schweppes Agrumes','schweppes-agrumes-hd',0],
     ['Tropico Orange Ananas','tropico',-90],
-    ['Perrier','perrier',-90],
-    ['Oasis Pomme Cassis Framboise','oasis-pomme-cassis-framboise',0]
+    ['Perrier','perrier-hd',0],
+    ['Oasis Pomme Cassis Framboise','oasis-pomme-cassis-framboise-hd',0]
   ].forEach(([n,image,imageRotation])=>add('boissons',n,2,'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
-  [['Maxi Fuze Tea Pêche','fuze-tea-large'],['Maxi Orangina','orangina-large']].forEach(([n,image])=>add('boissons',n,3.5,'1,5 L',`images/daily/drinks/${image}.jpg`));
+  [['Maxi Fuze Tea Pêche','fuze-tea-large-hd'],['Maxi Orangina','orangina-large']].forEach(([n,image])=>add('boissons',n,3.5,'1,5 L',`images/daily/drinks/${image}.jpg`));
+  // Boissons demandées par le client, ajoutées en fin de liste (identifiants existants inchangés).
+  [['Sprite','sprite-hd'],['DADA Cherry','dada-cherry-hd'],['Seven Up Cherry','7up-cherry-hd'],['Seven Up Mojito','7up-mojito-hd']]
+    .forEach(([n,image])=>add('boissons',n,2,'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation:0}));
   window.DAILY_MENU = products.filter(p=>!p.removed);
   window.DAILY_CATEGORIES = [
     ['selection','Nos envies du moment','spark'],['pizzas','Pizzas','pizza'],['menus-pizza','Menus pizza','pizza'],['burgers','Burgers','burger'],['menus-burger','Menus burger','burger'],['chicken','Chicken','chicken'],['buckets','Buckets','chicken'],['tacos','Tacos','wrap'],['sandwichs','Sandwichs','sandwich'],['menus','Menu enfant','heart'],['paninis','Paninis','sandwich'],['salades','Salades','leaf'],['assiettes','Assiettes','plate'],['extras','Petites faims','fries'],['desserts','Desserts','cake'],['boissons','Boissons','cup']

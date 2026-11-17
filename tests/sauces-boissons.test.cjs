@@ -52,11 +52,19 @@ test('chaque boisson a une vraie photo et Minute Maid n\'est plus proposé',()=>
   const drinks=[...catalog.values()].filter(p=>p.category==='boissons');
   for(const d of drinks){assert.match(d.image,/^images\/daily\/drinks\/.+\.jpg$/);assert.ok(fs.existsSync(path.join(__dirname,'..',d.image)),d.image);}
   assert.equal(drinks.some(d=>d.name==='Minute Maid'),false);
-  assert.equal(drinks.length,21);
+  assert.equal(drinks.length,25);
 });
 
 test('l\'eau minérale (bouteille 50 cl) coûte 1,50 €',()=>{
   const eau=find('Eau minérale');
   assert.equal(eau.price,1.5);
   assert.equal(quoteItem({productId:eau.id,quantity:2,choices:{}}).lineTotal,3);
+});
+
+test('les boissons du client sont toutes proposées (Sprite, DADA Cherry, Seven Up) et se commandent',()=>{
+  for(const name of ['Sprite','DADA Cherry','Seven Up Cherry','Seven Up Mojito']){
+    const p=find(name);assert.ok(p,name);assert.equal(p.price,2);
+    const burger=find('Double Cheese');
+    assert.equal(quoteItem({productId:burger.id,quantity:1,choices:{drink:name}}).price,burger.price);
+  }
 });

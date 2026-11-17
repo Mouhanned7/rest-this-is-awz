@@ -12,7 +12,7 @@
   function drinkOptions(product) {
     return product.drinkSize === 'large'
       ? ['Coca-Cola 1,5 L','Fanta 1,5 L','Fuze Tea Pêche 1,5 L','Orangina 1,5 L','Oasis 2 L']
-      : ['Coca-Cola','Coca-Cola Light','Coca-Cola Zéro','Coca-Cola Cherry','Fanta','Fanta Citron','Lipton Ice Tea Pêche','Orangina','DADA Fraise','DADA Melon','Schweppes Agrumes','Tropico Orange Ananas','Perrier','Eau minérale','Oasis Pomme Cassis Framboise','Oasis'];
+      : ['Coca-Cola','Coca-Cola Light','Coca-Cola Zéro','Coca-Cola Cherry','Sprite','Seven Up Cherry','Seven Up Mojito','Fanta','Fanta Citron','Lipton Ice Tea Pêche','Orangina','DADA Fraise','DADA Melon','DADA Cherry','Schweppes Agrumes','Tropico Orange Ananas','Perrier','Eau minérale','Oasis Pomme Cassis Framboise','Oasis'];
   }
   const drinkSupplement = (value,product) => /^Oasis(?: |$)/.test(value) && !(product?.drinkSize !== 'large' && ['tacos','sandwichs','burgers','chicken'].includes(product?.category)) ? 250 : 0;
   const drinkLabel = (value,product) => `${value === 'Oasis' ? 'Oasis Tropical' : value} · ${drinkSupplement(value,product) ? '+2,50 €' : 'Inclus'}`;
