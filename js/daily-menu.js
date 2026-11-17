@@ -165,6 +165,8 @@
   // Boissons demandées par le client, ajoutées en fin de liste (identifiants existants inchangés).
   [['Sprite','sprite-hd'],['DADA Cherry','dada-cherry-hd'],['Seven Up Cherry','7up-cherry-hd'],['Seven Up Mojito','7up-mojito-hd']]
     .forEach(([n,image])=>add('boissons',n,2,'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation:0}));
+  // Retirés de la carte à la demande du client : on garde l'emplacement pour que les identifiants restent stables.
+  products.forEach((p,i)=>{if(p.category==='boissons'&&['Coca-Cola Light','Schweppes Agrumes'].includes(p.name))products[i]={id:p.id,removed:true};});
   window.DAILY_MENU = products.filter(p=>!p.removed);
   window.DAILY_CATEGORIES = [
     ['selection','Nos envies du moment','spark'],['pizzas','Pizzas','pizza'],['menus-pizza','Menus pizza','pizza'],['burgers','Burgers','burger'],['menus-burger','Menus burger','burger'],['chicken','Chicken','chicken'],['buckets','Buckets','chicken'],['tacos','Tacos','wrap'],['sandwichs','Sandwichs','sandwich'],['menus','Menu enfant','heart'],['paninis','Paninis','sandwich'],['salades','Salades','leaf'],['assiettes','Assiettes','plate'],['extras','Petites faims','fries'],['desserts','Desserts','cake'],['boissons','Boissons','cup']

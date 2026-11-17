@@ -52,7 +52,9 @@ test('chaque boisson a une vraie photo et Minute Maid n\'est plus proposé',()=>
   const drinks=[...catalog.values()].filter(p=>p.category==='boissons');
   for(const d of drinks){assert.match(d.image,/^images\/daily\/drinks\/.+\.jpg$/);assert.ok(fs.existsSync(path.join(__dirname,'..',d.image)),d.image);}
   assert.equal(drinks.some(d=>d.name==='Minute Maid'),false);
-  assert.equal(drinks.length,25);
+  assert.equal(drinks.length,23);
+  assert.equal(drinks.some(d=>/Light|Schweppes/.test(d.name)),false);
+  assert.equal(pricing.drinkOptions({}).some(v=>/Light|Schweppes/.test(v)),false);
 });
 
 test('l\'eau minérale (bouteille 50 cl) coûte 1,50 €',()=>{
