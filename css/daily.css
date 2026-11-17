@@ -344,3 +344,9 @@ figcaption small{font-size:11px;color:var(--muted);line-height:1.6}
 .choice-chip:has(input:checked){background:#f4e0db;border-color:var(--red);color:var(--red)}
 .choice-chip:has(input:disabled){opacity:.5;cursor:not-allowed}
 .choice-chip:focus-within{outline:2px solid var(--red);outline-offset:2px}
+
+/* Restaurant fermé : boutons d'ajout et de validation grisés (le clic affiche l'avertissement). */
+.hero-content>p.hero-closed,.hero-closed{margin:18px 0 0;padding:14px 16px;max-width:520px;border-radius:14px;background:#fff7e8;color:#5a1620;border:1px solid #f0cf95;font-size:15px;line-height:1.5;box-shadow:0 8px 24px #4b102126}
+.hero-closed[hidden]{display:none}
+.hero-closed strong{display:block;font-size:16px;color:var(--red)}
+.shop-closed .add-button[aria-disabled="true"],.shop-closed #begin-checkout[aria-disabled="true"],.shop-closed #product-form button[type="submit"][aria-disabled="true"]{opacity:.45;filter:grayscale(.6);cursor:not-allowed;box-shadow:none}

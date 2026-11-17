@@ -29,6 +29,9 @@
     }
     return removed?{...item,price:(Math.round(item.price*100)-removed)/100,options,key:JSON.stringify([item.productId,options])}:item;
   }
+  // Horaires d'ouverture : tous les jours de 11h à 1h du matin, heure de Paris (même règle que le serveur).
+  const parisHour = (now = new Date()) => Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).formatToParts(now).find(part => part.type === 'hour').value);
+  const isScheduledOpen = (now = new Date()) => { const hour = parisHour(now); return hour >= 11 || hour < 1; };
   const minimumForMode = mode => mode === 'delivery' ? 18 : 0;
   const sauceOptions = ['Ketchup','Mayonnaise','Barbecue','Samouraï','Blanche','Big burger','Algérienne','Harissa','Andalouse','Curry','Moutarde','Chili thaï','Cheezy','Fromagère','Poivre'];
   const vegetableOptions = ['Salade','Tomate','Oignon'];
@@ -59,5 +62,5 @@
     const afterDiscountCents = subtotalCents - discountCents;
     return {subtotal:subtotalCents/100, discount:discountCents/100, deliveryFee:0, total:afterDiscountCents/100, label};
   }
-  return {totals, minimumForMode, drinkSlots, drinkOptions, drinkSupplement, drinkLabel, refreshIncludedDrinks, sauceOptions, vegetableOptions, hasMealCustomization, hasSauceCustomization, customizationGroups, customizationSummary};
+  return {totals, isScheduledOpen, minimumForMode, drinkSlots, drinkOptions, drinkSupplement, drinkLabel, refreshIncludedDrinks, sauceOptions, vegetableOptions, hasMealCustomization, hasSauceCustomization, customizationGroups, customizationSummary};
 });

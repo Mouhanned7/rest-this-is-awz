@@ -45,6 +45,29 @@
   let activeProduct = null;
   let detailQuantity = 1;
   let toastTimer;
+  // Restaurant fermé : boutons d'ajout et de validation grisés, avertissement au clic, bandeau dans le hero.
+  let shopClosed=false;
+  const CLOSED_BUTTONS='.add-button, #begin-checkout, #product-form button[type="submit"]';
+  function applyClosedState(){
+    document.body.classList.toggle('shop-closed',shopClosed);
+    document.querySelectorAll(CLOSED_BUTTONS).forEach(button=>{
+      if(shopClosed){button.setAttribute('aria-disabled','true');button.title='Restaurant fermé : revenez dans nos heures d’ouverture.';}
+      else{button.removeAttribute('aria-disabled');button.removeAttribute('title');}
+    });
+    document.querySelectorAll('[data-closed-banner]').forEach(el=>{el.hidden=!shopClosed;});
+  }
+  function showClosedNotice(){
+    document.getElementById('info-content').innerHTML='<span class="eyebrow">NOUS SOMMES FERMÉS</span><h2>Revenez <em>bientôt.</em></h2><p>Le restaurant est fermé en ce moment : les commandes sont impossibles. Revenez dans nos heures d’ouverture, <strong>tous les jours de 11h à 1h du matin</strong>. Vous pouvez continuer à parcourir la carte.</p><button class="button button-red cart-summary-button" data-close-dialog>J’ai compris</button>';
+    document.getElementById('info-dialog').showModal();
+  }
+  function setShopClosed(closed){if(shopClosed===closed)return;shopClosed=closed;applyClosedState();}
+  // Capture : le clic ou l'envoi est bloqué avant les autres gestionnaires (ajout au panier, validation).
+  document.addEventListener('click',event=>{
+    if(shopClosed&&event.target.closest?.(CLOSED_BUTTONS)){event.preventDefault();event.stopImmediatePropagation();showClosedNotice();}
+  },true);
+  document.addEventListener('submit',event=>{
+    if(shopClosed&&event.target.id==='product-form'){event.preventDefault();event.stopImmediatePropagation();showClosedNotice();}
+  },true);
   const storageKey = 'dailyChickenCart.v1';
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
@@ -177,15 +200,18 @@
   document.addEventListener('error',event=>{const el=event.target;if(el.tagName==='IMG'&&el.hasAttribute('data-google-photo')){el.hidden=true;el.closest('figure')?.classList.add('photo-unavailable');return;}if(el.tagName==='IMG'&&!el.dataset.fallback){el.dataset.fallback='true';el.src='images/daily/optimized/hero-pizza-4e8242.webp';}},true);
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{const saved=JSON.parse(event.newValue||'{}');cart=Array.isArray(saved.items)?saved.items.filter(i=>byId.has(i.productId)&&Number.isFinite(i.price)&&i.price>0&&Number.isInteger(i.quantity)&&i.quantity>0&&i.quantity<=99):[];mode=saved.mode==='delivery'?'delivery':'pickup';renderCart();}catch{/* Keep the current usable cart. */}}});
   async function updateOpeningBadge(){
-  const hour=Number(new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).find(part=>part.type==='hour').value);
-  let open=hour>=11||hour<1,override=false;
+  let open=window.DailyPricing.isScheduledOpen(),override=false;
+  setShopClosed(!open);
   try{
     const response=await fetch('/api/public-config',{cache:'no-store',signal:AbortSignal.timeout(15000)});
     if(response.ok){const config=await response.json();if(typeof config.opening?.open==='boolean'){open=config.opening.open;override=config.opening.allowOutsideHours===true;}}
   }catch{/* Keep the scheduled hours when offline. */}
   document.getElementById('opening-status').textContent=override?'Commandes ouvertes':open?'Ouvert · jusqu’à 1h du matin':'De retour à 11h';
   document.querySelector('.status-dot').classList.toggle('closed',!open);
+  setShopClosed(!open);
   }
+  // Les boutons sont recréés à chaque affichage : on réapplique l'état « fermé » dès qu'ils changent.
+  if('MutationObserver' in window){const closedObserver=new MutationObserver(()=>{if(shopClosed)applyClosedState();});for(const id of ['product-grid','product-detail','cart-summary'])closedObserver.observe(document.getElementById(id),{childList:true,subtree:true});}
   updateOpeningBadge();setInterval(updateOpeningBadge,60000);
   document.getElementById('year').textContent=new Date().getFullYear();
   fillIcons();renderMenu();renderCart();
