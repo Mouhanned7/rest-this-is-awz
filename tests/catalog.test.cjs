@@ -8,8 +8,8 @@ vm.runInNewContext(fs.readFileSync('js/daily-menu.js','utf8'),context);
 const products = context.window.DAILY_MENU;
 const item = (price,quantity=1,promo=true) => ({price,quantity,promo});
 
-test('all 124 flyer products have unique IDs, real image files and valid prices',()=>{
-  assert.equal(products.length,124);
+test('all 137 catalogue products have unique IDs, real image files and valid prices',()=>{
+  assert.equal(products.length,137);
   assert.equal(new Set(products.map(p=>p.id)).size,products.length);
   for(const p of products){
     assert.ok(fs.existsSync(p.image),`${p.name}: image missing`);
@@ -26,7 +26,7 @@ test('flyer pizza prices and promotional exclusions are retained',()=>{
   assert.equal(JSON.stringify(pizzas.find(p=>p.name==='Norvégienne').sizes.map(s=>s.price)),JSON.stringify([10.5,18.9,24]));
 });
 test('pickup promotion discounts the cheapest eligible pizza',()=>{
-  assert.deepEqual(totals([item(23),item(17.9),item(8.5,1,false)],'pickup'),{subtotal:49.4,discount:17.9,total:31.5,label:'À emporter : 2e pizza offerte'});
+  assert.deepEqual(totals([item(23),item(17.9),item(8.5,1,false)],'pickup'),{subtotal:49.4,discount:17.9,deliveryFee:0,total:31.5,label:'À emporter : 2e pizza offerte'});
 });
 test('delivery two-pizza offer and three-pizza offer do not stack',()=>{
   assert.equal(totals([item(17.9,2)],'delivery').total,26.85);

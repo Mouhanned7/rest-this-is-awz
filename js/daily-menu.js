@@ -104,17 +104,17 @@
   ].forEach(([n,d,i])=>add('salades',`Salade ${n}`,7.5,d,i));
   ['Kebab','Tenders','Chicken','Mixte'].forEach(n=>add('assiettes',`Assiette ${n}`,n==='Mixte'?13:12,'Servie avec salade, tomates, maïs et frites ou potatoes.',n==='Tenders'?'images/daily/optimized/111-68933f.webp':n==='Chicken'?'images/daily/optimized/222-bcd87f.webp':'images/daily/optimized/imaagee-c94656.webp',{choice:'plate'}));
   [
-    ['Menu Daily',20,'2 pizzas Junior au choix et 2 Coca-Cola 33 cl.','images/daily/optimized/offre-2-pizza-708f70.webp',{pizzaCount:2,pizzaSize:'Junior'}],
-    ['Menu Couple',25.99,'2 pizzas Senior au choix, 4 tenders et 1 Coca-Cola 1,5 L.','images/daily/optimized/menu-duo-2b776c.webp',{pizzaCount:2,pizzaSize:'Senior'}],
-    ['Menu Royal',33.99,'2 pizzas Senior au choix, 10 wings et 1 Coca-Cola 1,5 L.','images/daily/optimized/menu-duo-2b776c.webp',{pizzaCount:2,pizzaSize:'Senior'}],
-    ['Menu Gourmand',35.99,'2 pizzas Méga au choix, 10 wings et 1 Coca-Cola 1,5 L.','images/daily/optimized/offre-3-pizza-c36e8e.webp',{pizzaCount:2,pizzaSize:'Méga'}],
-    ['Bucket A',25,'30 wings, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket B',26,'20 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket C',23.5,'10 wings + 10 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket D',24.5,'10 pilons, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket E',25,'6 pilons + 6 wings + 6 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket F',32.5,'30 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
-    ['Bucket G',32.5,'15 tenders + 15 wings, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{}],
+    ['Menu Daily',20,'2 pizzas Junior au choix et 2 boissons 33 cl au choix (Oasis +2,50 € par boisson).','images/daily/optimized/offre-2-pizza-708f70.webp',{pizzaCount:2,pizzaSize:'Junior',drinkCount:2}],
+    ['Menu Couple',25.99,'2 pizzas Senior au choix, 4 tenders et 1 boisson grand format au choix (Oasis +2,50 €).','images/daily/optimized/menu-duo-2b776c.webp',{pizzaCount:2,pizzaSize:'Senior',drinkCount:1,drinkSize:'large'}],
+    ['Menu Royal',33.99,'2 pizzas Senior au choix, 10 wings et 1 boisson grand format au choix (Oasis +2,50 €).','images/daily/optimized/menu-duo-2b776c.webp',{pizzaCount:2,pizzaSize:'Senior',drinkCount:1,drinkSize:'large'}],
+    ['Menu Gourmand',35.99,'2 pizzas Méga au choix, 10 wings et 1 boisson grand format au choix (Oasis +2,50 €).','images/daily/optimized/offre-3-pizza-c36e8e.webp',{pizzaCount:2,pizzaSize:'Méga',drinkCount:1,drinkSize:'large'}],
+    ['Bucket A',25,'30 wings, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket B',26,'20 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket C',23.5,'10 wings + 10 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket D',24.5,'10 pilons, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket E',25,'6 pilons + 6 wings + 6 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket F',32.5,'30 tenders, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
+    ['Bucket G',32.5,'15 tenders + 15 wings, 4 frites et 1 boisson 1,5 L.','images/daily/optimized/bucket-daily-chicken-ad8975.webp',{drinkCount:1,drinkSize:'large'}],
     ['Menu M1',14.5,'2 Double Cheese, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
     ['Menu M2',14.5,'1 Triple Cheese + 1 Chicken Burger, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
     ['Menu M3',14.5,'1 Tower + 1 Cheese Burger, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
@@ -135,16 +135,34 @@
   const sweets={'Brownie':'images/daily/optimized/d3-5fbecb.webp','Tarte':'images/daily/optimized/d2-926f14.webp','Donuts':'images/daily/optimized/donuts-a5a386.webp','Muffin':'images/daily/optimized/muffin-63fd16.webp','Tiramisu':'images/daily/optimized/d1-06d15e.webp'};
   Object.entries(sweets).forEach(([n,image])=>add('desserts',n,3.5,'La petite touche sucrée pour finir. Parfums selon disponibilité.',image));
   ['Häagen-Dazs','Ben & Jerry’s'].forEach(n=>add('desserts',n,4,'Glace en pot. Demandez les parfums disponibles.',n==='Häagen-Dazs'?'images/daily/optimized/d4-5b9590.webp':'images/daily/optimized/icecream-617a0e.webp',{sizes:[{name:'100 ml',price:4},{name:'500 ml',price:8}]}));
-  const drinks={'Coca-Cola':'cola','Coca-Cola Light':'light','Fanta':'fanta','Eau minérale':'eau','Minute Maid':'minute-maid'};
-  Object.entries(drinks).forEach(([n,image])=>add('boissons',n,2,n==='Minute Maid'?'Orange, tropical ou pomme.':'Une boisson pour accompagner votre repas.',`images/daily/${image}.svg`));
-  [['Maxi Coca-Cola',3.5,'1,5 L','cola'],['Maxi Fanta',3.5,'1,5 L','fanta'],['Maxi Oasis',4,'2 L','oasis']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/${image}.svg`));
+  const drinks=[['Coca-Cola','restaurant-cola',0],['Coca-Cola Light','light',0],['Fanta','restaurant-fanta',-90],['Eau minérale','restaurant-eau',0]];
+  drinks.forEach(([n,image,imageRotation])=>add('boissons',n,2,n==='Eau minérale'?'Eau plate · 50 cl.':'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
+  // Minute Maid retiré de la carte : on garde son emplacement pour que les identifiants suivants ne bougent pas.
+  products.push({id:`daily-${products.length+1}`,removed:true});
+  [['Maxi Coca-Cola',3.5,'1,5 L','restaurant-cola-large'],['Maxi Fanta',3.5,'1,5 L','restaurant-fanta-large'],['Maxi Oasis',4,'Tropical · 2 L','restaurant-oasis-large']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/drinks/${image}.jpg`));
   // Menu enfant : trois produits au lieu d'un seul avec choix du type. Les deux derniers sont ajoutés
   // en fin de liste pour ne décaler aucun identifiant de produit existant (paniers en cours).
   [
     ['Menu Enfant Nuggets',7,'4 nuggets, frites, 1 boisson et 1 Kinder.','images/daily/optimized/n1-3cacc8.webp'],
     ['Menu Enfant Tenders',7,'4 tenders, frites, 1 boisson et 1 Kinder.','images/daily/optimized/chicken-0a6487.webp']
   ].forEach(([n,p,d,i])=>add('menus',n,p,d,i,{choice:'kid',meal:true}));
-  window.DAILY_MENU = products;
+  // Nouvelles boissons ajoutées en fin de liste : les identifiants existants doivent rester les mêmes.
+  [
+    ['Lipton Ice Tea Pêche','lipton-peche',-90],
+    ['Fanta Citron','fanta-citron',-90],
+    ['DADA Fraise','dada-fraise',0],
+    ['Orangina','orangina',-90],
+    ['DADA Melon','dada-melon',-90],
+    ['Coca-Cola Cherry','cola-cherry',-90],
+    ['Coca-Cola Zéro','cola-zero',90],
+    ['Oasis Tropical','oasis-tropical',0],
+    ['Schweppes Agrumes','schweppes-agrumes',-90],
+    ['Tropico Orange Ananas','tropico',-90],
+    ['Perrier','perrier',-90],
+    ['Oasis Pomme Cassis Framboise','oasis-pomme-cassis-framboise',0]
+  ].forEach(([n,image,imageRotation])=>add('boissons',n,2,'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
+  [['Maxi Fuze Tea Pêche','fuze-tea-large'],['Maxi Orangina','orangina-large']].forEach(([n,image])=>add('boissons',n,3.5,'1,5 L',`images/daily/drinks/${image}.jpg`));
+  window.DAILY_MENU = products.filter(p=>!p.removed);
   window.DAILY_CATEGORIES = [
     ['selection','Nos envies du moment','spark'],['pizzas','Pizzas','pizza'],['menus-pizza','Menus pizza','pizza'],['burgers','Burgers','burger'],['menus-burger','Menus burger','burger'],['chicken','Chicken','chicken'],['buckets','Buckets','chicken'],['tacos','Tacos','wrap'],['sandwichs','Sandwichs','sandwich'],['menus','Menu enfant','heart'],['paninis','Paninis','sandwich'],['salades','Salades','leaf'],['assiettes','Assiettes','plate'],['extras','Petites faims','fries'],['desserts','Desserts','cake'],['boissons','Boissons','cup']
   ];
