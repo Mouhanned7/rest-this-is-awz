@@ -33,7 +33,7 @@
   const categories = window.DAILY_CATEGORIES;
   const byId = new Map(menu.map(p=>[p.id,p]));
   const categoryName = key => categories.find(c=>c[0]===key)?.[1] || key;
-  const selectedNames = [['pizzas','Marguerita'],['burgers','Double Cheese'],['chicken','Tenders'],['tacos','Le Tacos'],['pizzas','Chicken'],['burgers','Chicken Burger'],['sandwichs','Kebab'],['menus','Menu Daily']];
+  const selectedNames = [['pizzas','Marguerita'],['burgers','Double Cheese'],['chicken','Tenders'],['tacos','Le Tacos'],['pizzas','Chicken'],['burgers','Chicken Burger'],['sandwichs','Kebab'],['menus-pizza','Menu Daily']];
   let category = new URLSearchParams(location.search).get('category') || 'selection';
   if (!categories.some(c=>c[0]===category)) category = 'selection';
   let limit = 12;
@@ -84,7 +84,7 @@
       for(let i=1;i<=2;i++)html+=optionSelect(`Ingrédient ${i} (à confirmer par téléphone)`,`ingredient${i}`,['Jambon','Poulet','Viande hachée','Thon','Merguez','Champignons','Chèvre','Olives']);
     }
     if(p.pizzaCount) for(let i=1;i<=p.pizzaCount;i++)html+=optionSelect(`Pizza ${i} · ${p.pizzaSize}`,`pizza${i}`,menu.filter(x=>x.category==='pizzas').map(x=>x.name));
-    if(p.meal){html+=optionSelect(p.choice==='kids'?'Votre boisson':'Votre boisson 33 cl','drink',drinks);if(p.choice!=='kids'&&p.choice!=='tacos')html+='<label class="check-label"><input type="checkbox" name="noFries"> Sans frites (−0,50 €)</label>';}
+    if(p.meal){html+=optionSelect(p.choice==='kids'||p.choice==='kid'?'Votre boisson':'Votre boisson 33 cl','drink',drinks);if(p.choice!=='kids'&&p.choice!=='kid'&&p.choice!=='tacos')html+='<label class="check-label"><input type="checkbox" name="noFries"> Sans frites (−0,50 €)</label>';}
     if(p.category==='desserts'&&p.sizes)html+='<p class="detail-note">Le parfum sera confirmé avec l’équipe selon les disponibilités.</p>';
     return html;
   }

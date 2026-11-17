@@ -121,13 +121,15 @@
     ['Menu M4',14.5,'1 Big + 1 Steak Chèvre, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
     ['Menu M5',14.5,'1 Giant Burger + 1 Maxi Chicken, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
     ['Menu M6',16,'1 Mega + 1 Cheese Burger, frites et 1 boisson 33 cl.','images/daily/optimized/double-burger-d75259.webp',{meal:true}],
-    ['Menu Enfant',7,'1 Cheese Burger ou 4 nuggets ou 4 tenders, frites, 1 boisson et 1 Kinder.','images/daily/optimized/f2-6e2217.webp',{choice:'kids',meal:true}]
-  ].forEach(([n,p,d,i,e])=>add('menus',n,p,d,i,e));
+    ['Menu Enfant Cheese Burger',7,'1 Cheese Burger, frites, 1 boisson et 1 Kinder.','images/daily/optimized/f2-6e2217.webp',{choice:'kid',meal:true}]
+  ].forEach(([n,p,d,i,e])=>add(
+    n.startsWith('Bucket ')?'buckets':/^Menu M\d$/.test(n)?'menus-burger':n.startsWith('Menu Enfant')?'menus':'menus-pizza',
+    n,p,d,i,e));
   [
     ['Mozza Sticks ×7',7.5,'7 bâtonnets de mozzarella panés.','images/daily/optimized/n5-0a1129.webp'],
     ['Onion Rings ×7',5.5,'7 rondelles d’oignon croustillantes.','images/daily/optimized/n3-726977.webp'],
     ['Barquette de viande',5.5,'Une portion de viande.','images/daily/optimized/steak-7c9ae5.webp'],
-    ['Barquette de frites',3.5,'Une portion de frites.','images/daily/optimized/fries-696692.webp'],
+    ['Barquette de frites maison',3.5,'Une portion de frites maison.','images/daily/optimized/fries-696692.webp'],
     ['Barquette de potatoes',4,'Une portion de quartiers de pommes de terre.','images/daily/optimized/f79-59c1cf.webp']
   ].forEach(([n,p,d,i])=>add('extras',n,p,d,i));
   const sweets={'Brownie':'images/daily/optimized/d3-5fbecb.webp','Tarte':'images/daily/optimized/d2-926f14.webp','Donuts':'images/daily/optimized/donuts-a5a386.webp','Muffin':'images/daily/optimized/muffin-63fd16.webp','Tiramisu':'images/daily/optimized/d1-06d15e.webp'};
@@ -136,8 +138,14 @@
   const drinks={'Coca-Cola':'cola','Coca-Cola Light':'light','Fanta':'fanta','Eau minérale':'eau','Minute Maid':'minute-maid'};
   Object.entries(drinks).forEach(([n,image])=>add('boissons',n,2,n==='Minute Maid'?'Orange, tropical ou pomme.':'Une boisson pour accompagner votre repas.',`images/daily/${image}.svg`));
   [['Maxi Coca-Cola',3.5,'1,5 L','cola'],['Maxi Fanta',3.5,'1,5 L','fanta'],['Maxi Oasis',4,'2 L','oasis']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/${image}.svg`));
+  // Menu enfant : trois produits au lieu d'un seul avec choix du type. Les deux derniers sont ajoutés
+  // en fin de liste pour ne décaler aucun identifiant de produit existant (paniers en cours).
+  [
+    ['Menu Enfant Nuggets',7,'4 nuggets, frites, 1 boisson et 1 Kinder.','images/daily/optimized/n1-3cacc8.webp'],
+    ['Menu Enfant Tenders',7,'4 tenders, frites, 1 boisson et 1 Kinder.','images/daily/optimized/chicken-0a6487.webp']
+  ].forEach(([n,p,d,i])=>add('menus',n,p,d,i,{choice:'kid',meal:true}));
   window.DAILY_MENU = products;
   window.DAILY_CATEGORIES = [
-    ['selection','Nos envies du moment','spark'],['pizzas','Pizzas','pizza'],['burgers','Burgers','burger'],['chicken','Chicken','chicken'],['tacos','Tacos','wrap'],['sandwichs','Sandwichs','sandwich'],['menus','À partager','heart'],['paninis','Paninis','sandwich'],['salades','Salades','leaf'],['assiettes','Assiettes','plate'],['extras','Petites faims','fries'],['desserts','Desserts','cake'],['boissons','Boissons','cup']
+    ['selection','Nos envies du moment','spark'],['pizzas','Pizzas','pizza'],['menus-pizza','Menus pizza','pizza'],['burgers','Burgers','burger'],['menus-burger','Menus burger','burger'],['chicken','Chicken','chicken'],['buckets','Buckets','chicken'],['tacos','Tacos','wrap'],['sandwichs','Sandwichs','sandwich'],['menus','Menu enfant','heart'],['paninis','Paninis','sandwich'],['salades','Salades','leaf'],['assiettes','Assiettes','plate'],['extras','Petites faims','fries'],['desserts','Desserts','cake'],['boissons','Boissons','cup']
   ];
 })();
