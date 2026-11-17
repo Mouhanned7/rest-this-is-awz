@@ -20,11 +20,11 @@ test('mobile payment receipt is separate from owner confirmation and deduplicate
   assert.equal(store.rows.get('dailyOrders/'+id).lifecycle,'active');
   assert.equal(store.rows.get('dailyOrders/'+id).paymentEmailStatus,'accepted');
 });
-test('unpaid orders cannot receive a receipt; SMTP failure stays retryable',async()=>{
+test('unpaid orders cannot receive a receipt; SMTP failure does not block and stays retryable',async()=>{
   const store=new TestStore();let sends=0,fail=true;
   const service=new PaymentReceipt({store,email:{send:async()=>{sends++;if(fail)throw new Error('SMTP unavailable');return 'id';}}});
   store.rows.get('dailyOrders/'+id).paymentStatus='pending';await assert.rejects(service.perform(id),e=>e.status===409);assert.equal(sends,0);
-  store.rows.get('dailyOrders/'+id).paymentStatus='paid';await assert.rejects(service.perform(id),/SMTP unavailable/);
+  store.rows.get('dailyOrders/'+id).paymentStatus='paid';assert.equal((await service.perform(id)).status,'not-sent');
   assert.equal(store.rows.get('dailyPaymentEmails/'+id).leaseUntil,0);assert.equal(store.rows.get('dailyOrders/'+id).paymentEmailStatus,undefined);
   fail=false;await service.perform(id);assert.equal(sends,2);assert.equal(store.rows.get('dailyOrders/'+id).paymentEmailStatus,'accepted');
 });
