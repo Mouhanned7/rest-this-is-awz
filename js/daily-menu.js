@@ -136,7 +136,7 @@
   Object.entries(sweets).forEach(([n,image])=>add('desserts',n,3.5,'La petite touche sucrée pour finir. Parfums selon disponibilité.',image));
   ['Häagen-Dazs','Ben & Jerry’s'].forEach(n=>add('desserts',n,4,'Glace en pot. Demandez les parfums disponibles.',n==='Häagen-Dazs'?'images/daily/optimized/d4-5b9590.webp':'images/daily/optimized/icecream-617a0e.webp',{sizes:[{name:'100 ml',price:4},{name:'500 ml',price:8}]}));
   const drinks=[['Coca-Cola','restaurant-cola',0],['Coca-Cola Light','light',0],['Fanta','restaurant-fanta',-90],['Eau minérale','restaurant-eau',0]];
-  drinks.forEach(([n,image,imageRotation])=>add('boissons',n,2,n==='Eau minérale'?'Eau plate · 50 cl.':'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
+  drinks.forEach(([n,image,imageRotation])=>add('boissons',n,n==='Eau minérale'?1.5:2,n==='Eau minérale'?'Eau plate · 50 cl.':'Canette · 33 cl.',`images/daily/drinks/${image}.jpg`,{imageRotation}));
   // Minute Maid retiré de la carte : on garde son emplacement pour que les identifiants suivants ne bougent pas.
   products.push({id:`daily-${products.length+1}`,removed:true});
   [['Maxi Coca-Cola',3.5,'1,5 L','restaurant-cola-large'],['Maxi Fanta',3.5,'1,5 L','restaurant-fanta-large'],['Maxi Oasis',4,'Tropical · 2 L','restaurant-oasis-large']].forEach(([n,p,d,image])=>add('boissons',n,p,d,`images/daily/drinks/${image}.jpg`));

@@ -54,3 +54,9 @@ test('chaque boisson a une vraie photo et Minute Maid n\'est plus proposé',()=>
   assert.equal(drinks.some(d=>d.name==='Minute Maid'),false);
   assert.equal(drinks.length,21);
 });
+
+test('l\'eau minérale (bouteille 50 cl) coûte 1,50 €',()=>{
+  const eau=find('Eau minérale');
+  assert.equal(eau.price,1.5);
+  assert.equal(quoteItem({productId:eau.id,quantity:2,choices:{}}).lineTotal,3);
+});
