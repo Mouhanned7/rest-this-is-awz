@@ -87,10 +87,17 @@ test('failed Firestore archival keeps retry state and does not resend the confir
   await assert.rejects(owner.actions.perform(order.id,'cancel','admin'),/offline/);assert.equal(owner.emails,1);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),true);
   fixture.store.finish=original;await owner.actions.perform(order.id,'cancel','admin');assert.equal(owner.emails,1);assert.equal(owner.deletions,1);
 });
-test('failed email keeps the active order and prevents deletion; concurrent owner actions are locked',async()=>{
+test('failed email no longer blocks closing: the order is archived and the failure is recorded',async()=>{
   const fixture=setup(),owner=ownerFixture(fixture),token='4'.repeat(64),order=await fixture.service.create(body({paymentMethod:'on_collection'}),token);
-  owner.email.send=async()=>{throw new Error('mail offline');};await assert.rejects(owner.actions.perform(order.id,'cancel','admin'),/mail offline/);assert.equal(owner.deletions,0);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),true);
+  owner.email.send=async()=>{throw new Error('mail offline');};
+  const result=await owner.actions.perform(order.id,'cancel','admin');
+  assert.equal(result.lifecycle,'cancelled');assert.equal(owner.deletions,1);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),false);
+  assert.equal(fixture.store.docs.get('dailyOrderArchive/'+order.id).emailId,'not-sent');
+});
+test('concurrent owner actions are locked',async()=>{
+  const fixture=setup(),owner=ownerFixture(fixture),token='7'.repeat(64),order=await fixture.service.create(body({paymentMethod:'on_collection'}),token);
   const claim=await fixture.store.claim(order.id,'cancel','admin');await assert.rejects(owner.actions.perform(order.id,'cancel','admin'),/en cours/);await fixture.store.release(order.id,claim.operation.lease);
+  assert.equal(owner.deletions,0);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),true);
 });
 test('payment arriving after a server restart releases an unfinished cancellation',async()=>{
   const fixture=setup(),owner=ownerFixture(fixture),token='5'.repeat(64),order=await fixture.service.create(body(),token);
@@ -101,14 +108,11 @@ test('payment arriving after a server restart releases an unfinished cancellatio
   await owner.actions.perform(order.id,'confirm','admin');assert.equal(owner.emails,1);assert.equal(owner.deletions,1);
 });
 
-test('SMTP failure can be retried later and only accepted mail permits archival',async()=>{
+test('SMTP failure does not stop the confirmation; no second e-mail is attempted afterwards',async()=>{
   const fixture=setup(),owner=ownerFixture(fixture),order=await fixture.service.create(body({paymentMethod:'on_collection'}),'6'.repeat(64));
-  const send=owner.email.send;owner.email.send=async()=>{throw new Error('SMTP unavailable');};
-  await assert.rejects(owner.actions.perform(order.id,'cancel','admin'),/SMTP unavailable/);
-  assert.equal(owner.deletions,0);
-  fixture.store.docs.get('dailyOperations/'+order.id).emailAttemptAt=Date.now()-48*3600000;
-  owner.email.send=send;await owner.actions.perform(order.id,'cancel','admin');
-  assert.equal(owner.emails,1);assert.equal(owner.deletions,1);
+  let attempts=0;owner.email.send=async()=>{attempts++;throw new Error('SMTP unavailable');};
+  await owner.actions.perform(order.id,'cancel','admin');await owner.actions.perform(order.id,'cancel','admin');
+  assert.equal(attempts,1);assert.equal(owner.deletions,1);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),false);
 });
 test('HTTP API verifies raw Stripe signatures, rejects forged events and enforces origin',async t=>{
   const fixture=setup(),token='f'.repeat(64),order=await fixture.service.create(body(),token);await fixture.service.checkout(order.id,token);
