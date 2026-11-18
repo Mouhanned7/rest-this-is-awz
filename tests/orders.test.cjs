@@ -18,7 +18,7 @@ class TestStore extends ActionStore {
   snapshot(key){return {exists:this.docs.has(key),data:()=>this.docs.get(key)};}
   get db(){return this.fake;}
 }
-function setup(){const store=new TestStore();let calls=0;const sessions=new Map();const stripe={checkout:{sessions:{create:async(data,options)=>{calls++;const id='cs_test_'+options.idempotencyKey;const session=sessions.get(id)||{id,url:'https://checkout.stripe.com/c/pay/test',status:'open',payment_status:'unpaid',amount_total:data.line_items[0].price_data.unit_amount,currency:'eur',client_reference_id:data.client_reference_id,metadata:data.metadata};sessions.set(id,session);return session;},retrieve:async id=>sessions.get(id)}}};return {store,stripe,sessions,get calls(){return calls;},service:new OrderService({store,stripe,baseUrl:'https://daily.example',now:()=>new Date('2026-09-30T10:00:00Z')})};}
+function setup({email=null}={}){const store=new TestStore();let calls=0;const sessions=new Map();const stripe={checkout:{sessions:{create:async(data,options)=>{calls++;const id='cs_test_'+options.idempotencyKey;const session=sessions.get(id)||{id,url:'https://checkout.stripe.com/c/pay/test',status:'open',payment_status:'unpaid',amount_total:data.line_items[0].price_data.unit_amount,currency:'eur',client_reference_id:data.client_reference_id,metadata:data.metadata};sessions.set(id,session);return session;},retrieve:async id=>sessions.get(id)}}};return {store,stripe,sessions,get calls(){return calls;},service:new OrderService({store,stripe,email,baseUrl:'https://daily.example',now:()=>new Date('2026-09-30T10:00:00Z')})};}
 test('French numbers accept spaces and +33 but reject foreign, truncated and oversized inputs',()=>{
   for(const phone of ['0612345678','06 12 34 56 78','01.23.45.67.89','+33 6 12 34 56 78']){const input=body();input.customer.phone=phone;assert.doesNotThrow(()=>validateOrder(input));}
   for(const phone of ['+21612345678','+441234567890','061234567','06123456789','+330612345678','06123abcde','0000000000']){const input=body();input.customer.phone=phone;assert.throws(()=>validateOrder(input),/français/);}
@@ -152,4 +152,50 @@ test('late Stripe events after local archival do not repopulate Firestore; statu
   await fixture.service.webhook({id:'evt_late',type:'checkout.session.completed',data:{object:session}});assert.equal(fixture.store.docs.size,0);
   assert.equal((await fixture.service.status(order.id,token,session.id)).paymentStatus,'paid');
   await assert.rejects(fixture.service.status(order.id,'7'.repeat(64),session.id),/introuvable/);
+});
+
+// Reçu envoyé par le serveur au moment du paiement Stripe.
+async function paidFixture(send){
+  const sent=[];const email={send:async(order,action)=>{sent.push([order.id,action]);return send(order,action);}};
+  const fixture=setup({email}),token='e'.repeat(64),order=await fixture.service.create(body(),token);await fixture.service.checkout(order.id,token);
+  const session={...[...fixture.sessions.values()][0],payment_status:'paid',payment_intent:'pi_test'};
+  return {...fixture,order,token,session,sent,doc:()=>fixture.store.docs.get(`dailyOrders/${order.id}`),receipt:()=>fixture.store.docs.get(`dailyPaymentEmails/${order.id}`)};
+}
+test('paiement Stripe : le serveur envoie le reçu et écrit « payée » + « reçu envoyé » ensemble',async()=>{
+  const f=await paidFixture(async()=>'<msg-1>');
+  await f.service.webhook({id:'evt_paid',type:'checkout.session.completed',data:{object:f.session}});
+  assert.deepEqual(f.sent,[[f.order.id,'paid']]);
+  assert.equal(f.doc().paymentStatus,'paid');assert.equal(f.doc().paymentEmailStatus,'accepted');
+  assert.equal(f.receipt().emailId,'<msg-1>');assert.equal(f.receipt().leaseUntil,0);
+  // Stripe renvoie la même notification, ou une autre pour la même commande : pas de deuxième reçu.
+  await f.service.webhook({id:'evt_paid',type:'checkout.session.completed',data:{object:f.session}});
+  await f.service.webhook({id:'evt_paid_again',type:'checkout.session.async_payment_succeeded',data:{object:f.session}});
+  assert.equal(f.sent.length,1);
+});
+test('paiement Stripe : si l\'e-mail échoue, la commande est payée et la caisse peut reprendre le reçu',async()=>{
+  const f=await paidFixture(async()=>{throw Object.assign(new Error('smtp'),{status:503});});
+  await f.service.webhook({id:'evt_paid',type:'checkout.session.completed',data:{object:f.session}});
+  assert.equal(f.doc().paymentStatus,'paid');assert.equal(f.doc().paymentEmailStatus,undefined);
+  assert.equal(f.receipt().emailId,undefined);assert.equal(f.receipt().leaseUntil,0); // verrou libéré
+});
+test('pas de reçu sans paiement réel : non payé, expiré ou échoué',async()=>{
+  const f=await paidFixture(async()=>'<msg>');
+  await f.service.webhook({id:'evt_unpaid',type:'checkout.session.completed',data:{object:{...f.session,payment_status:'unpaid'}}});
+  await f.service.webhook({id:'evt_expired',type:'checkout.session.expired',data:{object:{...f.session,payment_status:'unpaid'}}});
+  await f.service.webhook({id:'evt_failed',type:'checkout.session.async_payment_failed',data:{object:{...f.session,payment_status:'unpaid'}}});
+  assert.equal(f.sent.length,0);assert.notEqual(f.doc().paymentStatus,'paid');assert.equal(f.receipt(),undefined);
+});
+test('pas de reçu pour une commande annulée, ni pour un montant falsifié',async()=>{
+  const f=await paidFixture(async()=>'<msg>');
+  await assert.rejects(f.service.webhook({id:'evt_bad',type:'checkout.session.completed',data:{object:{...f.session,amount_total:1}}}),/incohérent/);
+  assert.equal(f.sent.length,0);
+  const archived={...f.doc(),lifecycle:'cancelled'};f.store.docs.delete(`dailyOrders/${f.order.id}`);f.store.docs.set(`dailyOrderArchive/${f.order.id}`,archived);
+  await assert.rejects(f.service.webhook({id:'evt_late',type:'checkout.session.completed',data:{object:f.session}}),/annulée/);
+  assert.equal(f.sent.length,0);
+});
+test('paiement plus tard : le reçu part au moment où le paiement arrive',async()=>{
+  const f=await paidFixture(async()=>'<msg-late>');
+  assert.equal(f.sent.length,0); // commande créée, pas encore payée
+  await f.service.webhook({id:'evt_async',type:'checkout.session.async_payment_succeeded',data:{object:f.session}});
+  assert.equal(f.sent.length,1);assert.equal(f.doc().paymentEmailStatus,'accepted');
 });
