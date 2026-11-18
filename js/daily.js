@@ -200,13 +200,13 @@
   document.addEventListener('error',event=>{const el=event.target;if(el.tagName==='IMG'&&el.hasAttribute('data-google-photo')){el.hidden=true;el.closest('figure')?.classList.add('photo-unavailable');return;}if(el.tagName==='IMG'&&!el.dataset.fallback){el.dataset.fallback='true';el.src='images/daily/optimized/hero-pizza-4e8242.webp';}},true);
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{const saved=JSON.parse(event.newValue||'{}');cart=Array.isArray(saved.items)?saved.items.filter(i=>byId.has(i.productId)&&Number.isFinite(i.price)&&i.price>0&&Number.isInteger(i.quantity)&&i.quantity>0&&i.quantity<=99):[];mode=saved.mode==='delivery'?'delivery':'pickup';renderCart();}catch{/* Keep the current usable cart. */}}});
   async function updateOpeningBadge(){
-  let open=window.DailyPricing.isScheduledOpen(),override=false;
+  let open=window.DailyPricing.isScheduledOpen();
   setShopClosed(!open);
   try{
     const response=await fetch('/api/public-config',{cache:'no-store',signal:AbortSignal.timeout(15000)});
-    if(response.ok){const config=await response.json();if(typeof config.opening?.open==='boolean'){open=config.opening.open;override=config.opening.allowOutsideHours===true;}}
+    if(response.ok){const config=await response.json();if(typeof config.opening?.open==='boolean'){open=config.opening.open;}}
   }catch{/* Keep the scheduled hours when offline. */}
-  document.getElementById('opening-status').textContent=override?'Commandes ouvertes':open?'Ouvert · jusqu’à 1h du matin':'De retour à 11h';
+  document.getElementById('opening-status').textContent=open?'Ouvert · jusqu’à 1h du matin':'De retour à 11h';
   document.querySelector('.status-dot').classList.toggle('closed',!open);
   setShopClosed(!open);
   }
