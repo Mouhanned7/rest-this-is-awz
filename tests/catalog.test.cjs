@@ -8,8 +8,8 @@ vm.runInNewContext(fs.readFileSync('js/daily-menu.js','utf8'),context);
 const products = context.window.DAILY_MENU;
 const item = (price,quantity=1,promo=true) => ({price,quantity,promo});
 
-test('all 139 catalogue products have unique IDs, real image files and valid prices',()=>{
-  assert.equal(products.length,139);
+test('all 140 catalogue products have unique IDs, real image files and valid prices',()=>{
+  assert.equal(products.length,140);
   assert.equal(new Set(products.map(p=>p.id)).size,products.length);
   for(const p of products){
     assert.ok(fs.existsSync(p.image),`${p.name}: image missing`);
