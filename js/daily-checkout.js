@@ -17,6 +17,29 @@
     clearTimeout(pollTimer);if(!dialog.open)dialog.showModal();
     dialog.innerHTML=heading('À TRÈS VITE','De retour à <em>11h.</em>')+`<p class="cart-alert" role="alert">${escape(message)}</p><p>Votre panier est conservé. Revenez pendant les horaires d’ouverture pour commander.</p><button type="button" class="button button-red cart-summary-button" data-checkout-close>J’ai compris</button>`;
   }
+  // Commune de livraison : sélection automatique depuis l'adresse, minimum affiché et appliqué.
+  function zoneField(){
+    const zones=window.DailyPricing.deliveryZones;
+    return `<label class="field-label">Commune de livraison<select name="zone" required><option value="">Choisissez votre commune</option>${zones.map(z=>`<option value="${z.key}">${escape(z.name)} (${z.postcode}) · minimum ${money(z.minimum)}</option>`).join('')}</select></label><p id="zone-info" class="cart-info" role="status">Votre commune est reconnue automatiquement depuis l’adresse ou votre position. Commune absente de la liste ? Appelez le <a href="tel:+33386311717">03 86 31 17 17</a>.</p>`;
+  }
+  function updateDeliveryMinimum(){
+    const form=dialog.querySelector('#checkout-form');
+    if(!form||!snapshot||snapshot.mode!=='delivery')return;
+    const P=window.DailyPricing,select=form.querySelector('[name="zone"]'),address=form.querySelector('[name="address"]')?.value||'';
+    const info=dialog.querySelector('#zone-info'),alert=dialog.querySelector('#minimum-alert'),submit=form.querySelector('[type="submit"]');
+    if(!select||!info||!alert||!submit)return;
+    const detected=P.detectDeliveryZone(address);
+    if(detected&&select.dataset.manual!=='true')select.value=detected.key;
+    const zone=P.deliveryZone(select.value),total=window.DailyCart.total();
+    const minimum=zone?P.deliveryMinimum(zone.key,address):null;
+    if(zone){
+      info.textContent=`Livraison à ${zone.name} : minimum ${money(minimum)} après remises.`+(detected&&detected.key===zone.key&&select.dataset.manual!=='true'?' Commune reconnue automatiquement.':'')+(detected&&detected.key!==zone.key?` Votre adresse indique ${detected.name} : vérifiez la commune.`:'');
+    }else info.textContent='Choisissez votre commune pour connaître le minimum de livraison. Elle est reconnue automatiquement depuis l’adresse ou votre position.';
+    const short=zone&&total<minimum;
+    alert.hidden=!short;
+    if(short)alert.textContent=`Il manque ${money(minimum-total)} pour la livraison à ${zone.name} (minimum ${money(minimum)} après remises). Ajoutez des articles ou choisissez le retrait.`;
+    if(!submitting)submit.disabled=!config.orderingEnabled||!!short;
+  }
   async function openCheckout(){
     snapshot=window.DailyCart.snapshot();if(!snapshot.items.length)return;
     gps=null;locationRequest++;clearTimeout(pollTimer);document.getElementById('cart-dialog').close();
@@ -28,17 +51,18 @@
         <div class="checkout-total"><span>${snapshot.items.reduce((n,i)=>n+i.quantity,0)} articles</span><strong>${money(total)}</strong></div>
         <div class="checkout-fields"><label class="field-label">Votre nom<input name="name" autocomplete="name" required maxlength="100" placeholder="Prénom et nom"></label><label class="field-label">Téléphone français<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="30" placeholder="06 12 34 56 78" aria-describedby="phone-help"><small id="phone-help">10 chiffres, ou +33 suivi de 9 chiffres.</small></label></div>
         <label class="field-label">E-mail<input name="email" type="email" autocomplete="email" required maxlength="160" placeholder="vous@exemple.fr"></label>
-        ${delivery?`<div class="location-box"><button type="button" class="button button-outline" id="detect-position">⌖ Utiliser ma position</button><p id="location-feedback" role="status">Autorisez la localisation pour aider le livreur. Votre adresse sera préremplie ; vous pourrez la corriger.</p><p id="detected-address" role="status" hidden></p><small id="location-attribution" hidden>Adresse : © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> · Photon</small><a id="customer-map" target="_blank" rel="noopener noreferrer" hidden>Voir ma position sur Google Maps ↗</a><button type="button" id="clear-position" class="remove-item" hidden>Retirer ma position</button></div><label class="field-label">Adresse de livraison<input name="address" autocomplete="street-address" required maxlength="500" placeholder="N°, rue, code postal et ville"></label><p class="cart-info">Vérifiez votre adresse, même après la détection GPS. Zone de livraison à confirmer avec le restaurant.</p>`:'<p class="checkout-address">Retrait au 40 rue Bourneil, Auxerre.</p>'}
+        ${delivery?`<div class="location-box"><button type="button" class="button button-outline" id="detect-position">⌖ Utiliser ma position</button><p id="location-feedback" role="status">Autorisez la localisation pour aider le livreur. Votre adresse sera préremplie ; vous pourrez la corriger.</p><p id="detected-address" role="status" hidden></p><small id="location-attribution" hidden>Adresse : © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> · Photon</small><a id="customer-map" target="_blank" rel="noopener noreferrer" hidden>Voir ma position sur Google Maps ↗</a><button type="button" id="clear-position" class="remove-item" hidden>Retirer ma position</button></div><label class="field-label">Adresse de livraison<input name="address" autocomplete="street-address" required maxlength="500" placeholder="N°, rue, code postal et ville"></label>${zoneField()}<p class="cart-info">Vérifiez votre adresse, même après la détection GPS.</p>`:'<p class="checkout-address">Retrait au 40 rue Bourneil, Auxerre.</p>'}
         <label class="field-label">Une précision ?<textarea name="note" maxlength="500" rows="2" placeholder="Étage, code, interphone, consigne…"></textarea></label>
         <fieldset class="payment-options"><legend>Votre règlement</legend><label><input type="radio" name="paymentMethod" value="online" ${config.paymentsEnabled?'checked':'disabled'}> Carte bancaire <small>sur Stripe</small></label><label><input type="radio" name="paymentMethod" value="on_collection" ${config.paymentsEnabled?'':'checked'}> Au ${delivery?'livreur':'retrait'}</label></fieldset>
         ${!config.paymentsEnabled?`<p id="payment-availability" class="cart-info" role="status">Le paiement par carte est momentanément indisponible. Vous pouvez régler au ${delivery?'livreur':'retrait'}.</p><button type="button" id="refresh-payments" class="remove-item">Vérifier la disponibilité de la carte</button>`:''}
         ${!config.orderingEnabled?'<p class="cart-alert">Commande en ligne bientôt disponible. En attendant : <a href="tel:+33386311717">03 86 31 17 17</a>.</p>':''}
-        ${delivery&&total<18?'<p class="cart-alert">La livraison est disponible dès 18 € après remises.</p>':''}
+        ${delivery?'<p id="minimum-alert" class="cart-alert" role="status" hidden></p>':''}
         ${config.opening?.open===false?`<p class="cart-alert" role="alert">${escape(config.opening.message)}</p>`:''}
         <p id="checkout-error" class="checkout-error" role="alert"></p>
-        <button type="submit" class="button button-red cart-summary-button" ${!config.orderingEnabled||(delivery&&total<18)?'disabled':''}>Valider ma commande · ${money(total)}</button>
+        <button type="submit" class="button button-red cart-summary-button" ${!config.orderingEnabled?'disabled':''}>Valider ma commande · ${money(total)}</button>
         <p class="cart-info">En validant, vos coordonnées et votre position, si partagée, sont transmises au restaurant pour traiter la commande. Le paiement par carte s’effectue sur Stripe.</p>
       </form>`;
+    updateDeliveryMinimum();
   }
   async function detectPosition(){
     const button=dialog.querySelector('#detect-position'),feedback=dialog.querySelector('#location-feedback'),form=dialog.querySelector('#checkout-form');
@@ -61,7 +85,7 @@
         const address=form.querySelector('[name="address"]');
         dialog.querySelector('#location-attribution').hidden=result.provider!=='OpenStreetMap · Photon';
         if(result.address){detected.textContent='Adresse détectée : '+result.address;}
-        if(result.address&&address&&address.value===priorAddress){address.value=result.address;feedback.textContent=message+(result.partial?' Adresse préremplie : complétez le numéro et vérifiez la rue.':' Adresse préremplie : vous pouvez la modifier. Vérifiez le numéro et la rue.');}
+        if(result.address&&address&&address.value===priorAddress){address.value=result.address;updateDeliveryMinimum();feedback.textContent=message+(result.partial?' Adresse préremplie : complétez le numéro et vérifiez la rue.':' Adresse préremplie : vous pouvez la modifier. Vérifiez le numéro et la rue.');}
         else feedback.textContent=message+(address?.value.trim()?' Votre adresse saisie a été conservée. Vérifiez-la.':' Saisissez votre adresse complète ci-dessous pour confirmer la livraison.');
       }catch{if(current())feedback.textContent=message+' La recherche d’adresse est indisponible. Saisissez votre adresse ci-dessous ; la position GPS est conservée.';}
     }catch(error){if(current())feedback.textContent=error.message||'Localisation indisponible. Saisissez votre adresse.';}
@@ -90,7 +114,7 @@
       if(currentConfig.opening?.open===false){showClosed(currentConfig.opening.message);return;}
       const data=Object.fromEntries(new FormData(form));
       const stale=snapshot.items.find(item=>!item.choices);if(stale)throw new Error(`Votre ancien panier contient « ${stale.name} ». Retirez cet article puis ajoutez-le à nouveau pour confirmer ses options.`);
-      const payload={items:snapshot.items.map(i=>({productId:i.productId,quantity:i.quantity,choices:i.choices})),mode:snapshot.mode,paymentMethod:data.paymentMethod,customer:{name:data.name,email:data.email,phone:data.phone,address:data.address||'',location:gps},note:data.note};
+      const payload={items:snapshot.items.map(i=>({productId:i.productId,quantity:i.quantity,choices:i.choices})),mode:snapshot.mode,paymentMethod:data.paymentMethod,customer:{name:data.name,email:data.email,phone:data.phone,address:data.address||'',zone:data.zone||'',location:gps},note:data.note};
       const fingerprint=JSON.stringify(payload);
       if(!attempt||attempt.fingerprint!==fingerprint||attempt.orderId){
         // Keep the request token before sending, so a lost response can be retried safely.
@@ -101,7 +125,7 @@
       attempt.orderId=order.id;attempt.fingerprint=fingerprint;attempt.pollStart=Date.now();persist();ensureTracking();window.DailyCart.clearIfUnchanged(snapshot);
       if(payload.paymentMethod==='online')await startPayment(order);else showStatus(order);
     }catch(err){if(dialog.querySelector('#checkout-error'))error.textContent=err.name==='TimeoutError'?'La réponse tarde. Réessayez : la même demande sera reprise sans créer de doublon.':err.message;}
-    finally{submitting=false;if(button.isConnected)button.disabled=false;}
+    finally{submitting=false;if(button.isConnected){button.disabled=false;updateDeliveryMinimum();}}
   }
   async function startPayment(order){
     try{const latest=await api('/public-config');if(latest.opening?.open===false){showClosed(latest.opening.message);return;}}catch{window.DailyCart.toast('Impossible de vérifier les horaires. Réessayez.');return;}
@@ -136,6 +160,8 @@
     if(event.target.closest('#track-order')){attempt.pollStart=Date.now();refreshStatus();}
   });
   dialog.addEventListener('submit',event=>{if(event.target.id==='checkout-form'){event.preventDefault();submitOrder(event.target);}});
+  dialog.addEventListener('input',event=>{if(event.target.name==='address')updateDeliveryMinimum();});
+  dialog.addEventListener('change',event=>{if(event.target.name==='zone'){event.target.dataset.manual=event.target.value?'true':'false';updateDeliveryMinimum();}});
   dialog.addEventListener('input',event=>{if(event.target.name==='phone'){const value=event.target.value.replace(/[\s.()-]/g,'');const valid=!value||/^(0[1-9]\d{8}|\+33[1-9]\d{8})$/.test(value);const message='Saisissez un numéro français : 06 12 34 56 78 ou +33 6 12 34 56 78.';event.target.setCustomValidity(valid?'':message);event.target.setAttribute('aria-invalid',String(!valid));const help=dialog.querySelector('#phone-help');help.textContent=valid?'10 chiffres, ou +33 suivi de 9 chiffres.':message;help.classList.toggle('checkout-error',!valid);}});
   dialog.addEventListener('close',()=>{clearTimeout(pollTimer);locationRequest++;});
   const returnParams=new URLSearchParams(location.search);
