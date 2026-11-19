@@ -64,9 +64,8 @@ test('pay-at-collection orders cannot start online checkout',async()=>{
   const {service}=setup(),token='e'.repeat(64),order=await service.create(body({paymentMethod:'on_collection'}),token);await assert.rejects(service.checkout(order.id,token),/retrait/);
 });
 function ownerFixture(fixture){let emails=0;const email={send:async()=>{emails++;return 'email_test';}};return {email,get emails(){return emails;},get deletions(){return [...fixture.store.docs.keys()].filter(k=>k.startsWith('dailyOrderArchive/')).length;},actions:new OwnerActions({store:fixture.store,orders:fixture.service,email})};}
-test('owner confirmation requires paid status, sends one email and removes active order; retry stays closed',async()=>{
+test('owner confirmation (paid), sends one email and removes active order; retry stays closed',async()=>{
   const fixture=setup(),owner=ownerFixture(fixture),token='1'.repeat(64),input=body(),order=await fixture.service.create(input,token);
-  await assert.rejects(owner.actions.perform(order.id,'confirm','admin'),/payée/);
   fixture.store.docs.get('dailyOrders/'+order.id).paymentStatus='paid';
   await owner.actions.perform(order.id,'confirm','admin');await owner.actions.perform(order.id,'confirm','admin');
   assert.equal(owner.emails,1);assert.equal(owner.deletions,1);assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),false);
@@ -198,4 +197,37 @@ test('paiement plus tard : le reçu part au moment où le paiement arrive',async
   assert.equal(f.sent.length,0); // commande créée, pas encore payée
   await f.service.webhook({id:'evt_async',type:'checkout.session.async_payment_succeeded',data:{object:f.session}});
   assert.equal(f.sent.length,1);assert.equal(f.doc().paymentEmailStatus,'accepted');
+});
+
+// Confirmer et annuler : possibles que la commande soit payée ou non, toujours archivées.
+const expireStripe=fixture=>{fixture.stripe.checkout.sessions.expire=async id=>{const session=fixture.sessions.get(id);session.status='expired';return session;};};
+async function archived(fixture,id){return fixture.store.docs.get('dailyOrderArchive/'+id);}
+test('confirmer une commande NON payée : paiement fermé, e-mail, archivée comme confirmée',async()=>{
+  const fixture=setup(),owner=ownerFixture(fixture),token='3'.repeat(64),order=await fixture.service.create(body(),token);
+  await fixture.service.checkout(order.id,token);expireStripe(fixture);
+  await owner.actions.perform(order.id,'confirm','admin');
+  assert.equal([...fixture.sessions.values()][0].status,'expired');assert.equal(owner.emails,1);
+  const entry=await archived(fixture,order.id);assert.equal(entry.lifecycle,'confirmed');assert.equal(entry.paymentStatus,'pending');
+  assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),false);
+});
+test('confirmer une commande non payée alors que Stripe est indisponible : possible quand même',async()=>{
+  const fixture=setup(),owner=ownerFixture(fixture),token='4'.repeat(64),order=await fixture.service.create(body(),token);
+  fixture.service.preventPayment=async()=>{throw new HttpError(503,'Stripe indisponible');};
+  await owner.actions.perform(order.id,'confirm','admin');
+  assert.equal((await archived(fixture,order.id)).lifecycle,'confirmed');
+});
+test('annuler une commande PAYÉE : possible, e-mail, archivée comme annulée, pas de blocage Stripe',async()=>{
+  const fixture=setup(),owner=ownerFixture(fixture),token='5'.repeat(64),order=await fixture.service.create(body(),token);
+  fixture.store.docs.get('dailyOrders/'+order.id).paymentStatus='paid';
+  let touched=0;fixture.service.preventPayment=async()=>{touched++;};
+  await owner.actions.perform(order.id,'cancel','admin');
+  assert.equal(touched,0);assert.equal(owner.emails,1);
+  const entry=await archived(fixture,order.id);assert.equal(entry.lifecycle,'cancelled');assert.equal(entry.paymentStatus,'paid');
+  assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),false);
+});
+test('annuler une commande non payée : toujours refusé si Stripe est indisponible',async()=>{
+  const fixture=setup(),owner=ownerFixture(fixture),token='6'.repeat(64),order=await fixture.service.create(body(),token);
+  fixture.service.preventPayment=async()=>{throw new HttpError(503,'Stripe indisponible');};
+  await assert.rejects(owner.actions.perform(order.id,'cancel','admin'),/Stripe/);
+  assert.equal(fixture.store.docs.has('dailyOrders/'+order.id),true);
 });

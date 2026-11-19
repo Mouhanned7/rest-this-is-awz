@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {OrderEmail,emailConfigured,smtpOptions}=require('../lib/integrations.cjs');
 const env={SMTP_EMAIL:'restaurant@gmail.com',SMTP_APP_PASSWORD:'abcd efgh ijkl mnop'};
-const order={id:'a'.repeat(28),reference:'DAILY-TEST',customer:{name:'Client',email:'client@example.com',address:'40 rue Bourneil, Auxerre'},mode:'delivery',items:[{quantity:2,name:'Regina',lineTotal:20,options:'Senior'}],totalPrice:20,note:'Sonnez'};
+const order={id:'a'.repeat(28),reference:'DAILY-TEST',paymentStatus:'paid',customer:{name:'Client',email:'client@example.com',address:'40 rue Bourneil, Auxerre'},mode:'delivery',items:[{quantity:2,name:'Regina',lineTotal:20,options:'Senior'}],totalPrice:20,note:'Sonnez'};
 
 test('email + app password configure Gmail; other SMTP requires encrypted ports',()=>{
   assert.equal(emailConfigured({}),false);assert.equal(emailConfigured(env),true);
@@ -19,7 +19,7 @@ test('SMTP confirmations and cancellations include details and stable IDs, await
   const cancelled=await email.send(order,'cancel');assert.notEqual(first,cancelled);assert.equal(closed,3);
   assert.equal(messages[0].from.address,env.SMTP_EMAIL);assert.equal(messages[0].to.address,order.customer.email);
   assert.match(messages[0].text,/payée a été confirmée/);assert.match(messages[0].text,/2 × Regina/);assert.match(messages[0].text,/40 rue Bourneil/);assert.match(messages[0].text,/Sonnez/);
-  assert.match(messages[2].text,/non payée a été annulée/);assert.match(messages[2].subject,/Commande annulée/);
+  assert.match(messages[2].text,/annulée par Daily Chicken Auxerre\. Votre paiement sera remboursé/);assert.match(messages[2].subject,/Commande annulée/);
   assert.match(messages[0].html,/<html lang="fr">/);assert.match(messages[0].html,/Total payé/);
   assert.match(messages[0].html,/tel:\+33386311717/);assert.equal(messages[0].replyTo.address,env.SMTP_EMAIL);
 });
@@ -33,7 +33,7 @@ test('HTML email escapes customer content, retains the plain text and differenti
     assert.match(content.html,/&lt;img/);assert.match(content.html,/Senior &amp; extra<br>Sans olives/);
     assert.match(content.html,/Rue &lt;script&gt;test/);assert.match(content.html,/Remise incluse/);
     assert.match(content.text,/Code 123/);assert.match(content.html,/@media\(max-width:600px\)/);
-    if(action==='cancel'){assert.doesNotMatch(content.html,/Total payé/);assert.match(content.html,/aucun montant à régler/);}
+    if(action==='cancel'){assert.doesNotMatch(content.html,/Total payé/);assert.match(content.html,/remboursement par le restaurant|aucun montant à régler/);}
     if(action==='paid'){assert.match(content.html,/attend maintenant la confirmation/);assert.doesNotMatch(content.html,/a été confirmée/);}
   }
   const pickup=orderEmailContent({...order,mode:'pickup',lifecycle:'confirmed'},'paid');
@@ -48,4 +48,15 @@ test('rejection, uncertain response and SMTP errors never count as accepted or r
   const email=new OrderEmail(env,()=>({sendMail:async()=>{throw new Error(env.SMTP_APP_PASSWORD);},close:()=>{}}));
   await assert.rejects(email.send(order,'cancel'),error=>error.status===503&&!error.message.includes(env.SMTP_APP_PASSWORD));
   await assert.rejects(new OrderEmail({}).send(order,'confirm'),error=>error.status===503);
+});
+
+test('e-mails selon le paiement : confirmer / annuler une commande payée ou non payée',()=>{
+  const {orderEmailContent}=require('../lib/email-template.cjs');
+  const unpaid={...order,paymentStatus:'pending'};
+  const confirmPaid=orderEmailContent(order,'confirm'),confirmUnpaid=orderEmailContent(unpaid,'confirm');
+  assert.match(confirmPaid.text,/commande payée a été confirmée/);assert.match(confirmPaid.html,/Total payé/);
+  assert.match(confirmUnpaid.text,/Le règlement se fera à la réception/);assert.match(confirmUnpaid.text,/Total à régler/);assert.match(confirmPaid.text,/Total payé/);assert.match(confirmUnpaid.html,/Total à régler/);assert.doesNotMatch(confirmUnpaid.html,/Total payé/);
+  const cancelPaid=orderEmailContent(order,'cancel'),cancelUnpaid=orderEmailContent(unpaid,'cancel');
+  assert.match(cancelPaid.text,/Votre paiement sera remboursé/);assert.match(cancelPaid.html,/remboursement par le restaurant/);assert.match(cancelPaid.html,/Remboursement à venir/);
+  assert.match(cancelUnpaid.text,/non payée a été annulée/);assert.match(cancelUnpaid.html,/aucun montant à régler/);
 });
